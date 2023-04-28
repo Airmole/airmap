@@ -19,6 +19,9 @@ export default {
       deep: true,
     },
   },
+  mounted() {
+    document.title = 'Airmap';
+  },
   data() {
     return {
       models: {
@@ -64,7 +67,8 @@ export default {
           }
         },
         markers: [],
-        labelMarkers: []
+        labelMarkers: [],
+        textMarkers: []
       }
     }
   },

@@ -59,10 +59,27 @@
             v-for="(marker, index) in models.labelMarkers"
             :key="index"
             :visible="marker.visible"
+            :zIndex="marker.zIndex"
             :position="marker.position"
             :zooms="marker.zooms"
             :icon="marker.icon"
             :text="marker.text"
+        />
+        <el-amap-text
+            v-for="(marker, index) in models.textMarkers"
+            :key="index"
+            :zooms="[2, 20]"
+            :visible="marker.visible"
+            :zIndex="marker.zIndex"
+            :position="marker.position"
+            :offset="marker.offset"
+            :text="marker.text"
+            :draggable="marker.draggable"
+            :cursor="marker.cursor"
+            :angle="marker.angle"
+            :title="marker.title"
+            :textStyle="marker.textStyle"
+            @dragend="(e) => { dragendTextMarker(marker, e, index) }"
         />
       </el-amap>
     </a-layout-content>
@@ -83,6 +100,7 @@
             <a-divider />
             <label-markers-config :model="models" />
             <a-divider />
+            <text-markers-config :model="models" />
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -95,13 +113,15 @@ import mapConfig from "@/AirMap/Config/MapConfig"
 import layerConfig from "@/AirMap/Config/LayerConfig"
 import markersConfig from "@/AirMap/Config/MarkersConfig"
 import labelMarkersConfig from "@/AirMap/Config/LabelMarkersConfig"
+import TextMarkersConfig from "@/AirMap/Config/TextMarkersConfig"
 export default {
   name: 'AirMap',
   components: {
     mapConfig,
     layerConfig,
     markersConfig,
-    labelMarkersConfig
+    labelMarkersConfig,
+    TextMarkersConfig
   },
   props: {
     models: {
@@ -150,7 +170,9 @@ export default {
               }
             }
           },
-          markers: []
+          markers: [],
+          labelMarkers: [],
+          textMarkers: []
         }
       }
     }
@@ -189,6 +211,9 @@ export default {
     },
     dragendMarker (marker, e, index){
       this.models.markers[index].position = [e.lnglat.lng, e.lnglat.lat]
+    },
+    dragendTextMarker (marker, e, index){
+      this.models.textMarkers[index].position = [e.lnglat.lng, e.lnglat.lat]
     }
   }
 }
