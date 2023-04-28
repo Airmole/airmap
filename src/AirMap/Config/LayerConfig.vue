@@ -16,7 +16,7 @@
     <a-row class="margin-top" v-if="model.layer.traffic.show">
       <a-col :span="6"><div class="label">层级</div></a-col>
       <a-col :span="17">
-        <a-input-number v-model:value="model.layer.traffic.zIndex" :min="-99999" :max="99999" />
+        <a-input-number v-model:value="model.layer.traffic.zIndex" :min="-99999" :max="99999" class="width-full" />
       </a-col>
     </a-row>
     <a-row class="margin-top">
@@ -34,7 +34,7 @@
     <a-row class="margin-top" v-if="model.layer.satellite.show">
       <a-col :span="6"><div class="label">层级</div></a-col>
       <a-col :span="17">
-        <a-input-number v-model:value="model.layer.satellite.zIndex" :min="-99999" :max="99999" />
+        <a-input-number v-model:value="model.layer.satellite.zIndex" :min="-99999" :max="99999" class="width-full" />
       </a-col>
     </a-row>
     <a-row class="margin-top">
@@ -52,7 +52,7 @@
     <a-row class="margin-top" v-if="model.layer.roadnet.show">
       <a-col :span="6"><div class="label">层级</div></a-col>
       <a-col :span="17">
-        <a-input-number v-model:value="model.layer.roadnet.zIndex" :min="-99999" :max="99999" />
+        <a-input-number v-model:value="model.layer.roadnet.zIndex" :min="-99999" :max="99999" class="width-full" />
       </a-col>
     </a-row>
     <a-row class="margin-top">
@@ -116,7 +116,7 @@
     <a-row class="margin-top" v-if="model.layer.district.show">
       <a-col :span="6"><div class="label">层级</div></a-col>
       <a-col :span="17">
-        <a-input-number v-model:value="model.layer.district.zIndex" :min="-99999" :max="99999" />
+        <a-input-number v-model:value="model.layer.district.zIndex" :min="-99999" :max="99999" class="width-full" />
       </a-col>
     </a-row>
   </div>
@@ -163,5 +163,8 @@ export default {
 }
 .margin-left {
   margin-left: 10px;
+}
+.width-full {
+  width: 100%;
 }
 </style>

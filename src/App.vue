@@ -63,7 +63,8 @@ export default {
             },
           }
         },
-        markers: []
+        markers: [],
+        labelMarkers: []
       }
     }
   },

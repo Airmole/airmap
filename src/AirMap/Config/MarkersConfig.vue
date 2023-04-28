@@ -15,18 +15,7 @@
           </a-tooltip>
         </a-col>
         <a-col :span="wrapperSpan">
-          <a-switch v-model:checked="item.show" checked-children="显示" un-checked-children="隐藏" />
-        </a-col>
-      </a-row>
-      <a-row class="margin-top">
-        <a-col :span="labelSpan">
-          <a-tooltip>
-            <template #title>点标记的叠加顺序。地图上存在多个点标记叠加时，通过该属性使级别较高的点标记在上层显示，默认zIndex：12</template>
-            <div class="label">层级</div>
-          </a-tooltip>
-        </a-col>
-        <a-col :span="wrapperSpan">
-          <a-input-number v-model:value="item.zIndex" :min="-99999" :max="99999" />
+          <a-switch v-model:checked="item.visible" checked-children="显示" un-checked-children="隐藏" />
         </a-col>
       </a-row>
       <a-row class="margin-top">
@@ -46,6 +35,17 @@
       <a-row class="margin-top">
         <a-col :span="labelSpan">
           <a-tooltip>
+            <template #title>点标记的叠加顺序。地图上存在多个点标记叠加时，通过该属性使级别较高的点标记在上层显示，默认zIndex：12</template>
+            <div class="label">层级</div>
+          </a-tooltip>
+        </a-col>
+        <a-col :span="wrapperSpan">
+          <a-input-number v-model:value="item.zIndex" :min="-99999" :max="99999" class="width-full" />
+        </a-col>
+      </a-row>
+      <a-row class="margin-top">
+        <a-col :span="labelSpan">
+          <a-tooltip>
             <template #title>点标记显示位置偏移量，默认值为 [0,0] 。Marker指定position后，默认以marker左上角位置为基准点（若设置了anchor，则以anchor设置位置为基准点），对准所给定的position位置，若需使marker指定位置对准在position处，需根据marker的尺寸设置一定的偏移量。</template>
             <div class="label">点偏移</div>
           </a-tooltip>
@@ -54,6 +54,33 @@
           <a-input-group compact>
             <a-input-number v-model:value="item.offset[0]" style="width: 50%" />
             <a-input-number v-model:value="item.offset[1]" style="width: 50%" />
+          </a-input-group>
+        </a-col>
+      </a-row>
+      <a-row class="margin-top">
+        <a-col :span="labelSpan">
+          <a-tooltip>
+            <template #title>点标记显示的层级范围，超过范围不显示。默认值：zooms: [2, 20]</template>
+            <div class="label">展示范围</div>
+          </a-tooltip>
+        </a-col>
+        <a-col :span="wrapperSpan">
+          <a-input-group compact>
+            <a-input
+                v-model:value="item.zooms[0]"
+                style="width: 70px; text-align: center"
+                placeholder="Minimum"
+            />
+            <a-input
+                style="width: 30px; border-left: 0; pointer-events: none; background-color: #fff"
+                placeholder="~"
+                disabled
+            />
+            <a-input
+                v-model:value="item.zooms[1]"
+                style="width: 70px; text-align: center; border-left: 0"
+                placeholder="Maximum"
+            />
           </a-input-group>
         </a-col>
       </a-row>
@@ -145,9 +172,10 @@ export default {
   methods: {
     add () {
       const item = {
-        show: true,
+        visible: true,
         position: this.model.map.center,
         zIndex: 12,
+        zooms: [2, 20],
         offset: [0, 0],
         icon: 'https://webapi.amap.com/theme/v1.3/markers/b/mark_bs.png',
         content: '',
@@ -186,5 +214,8 @@ export default {
 }
 .margin-top {
   margin-top: 10px;
+}
+.width-full {
+  width: 100%;
 }
 </style>

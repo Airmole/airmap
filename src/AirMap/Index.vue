@@ -40,9 +40,10 @@
         <el-amap-marker
             v-for="(marker, index) in models.markers"
             :key="index"
-            :visible="marker.show"
+            :visible="marker.visible"
             :position="marker.position"
             :zIndex="marker.zIndex"
+            :zooms="marker.zooms"
             :offset="marker.offset"
             :icon="marker.icon"
             :content="marker.content"
@@ -51,12 +52,21 @@
             :title="marker.title"
             :clickable="marker.clickable"
             :label="marker.label"
-            @dragend="(e) => { dragendArrayMarker(marker, e, index) }"
-            @click="(e) => { clickArrayMarker(marker, e, index) }"
+            @dragend="(e) => { dragendMarker(marker, e, index) }"
+            @click="(e) => { clickMarker(marker, e, index) }"
+        />
+        <el-amap-label-marker
+            v-for="(marker, index) in models.labelMarkers"
+            :key="index"
+            :visible="marker.visible"
+            :position="marker.position"
+            :zooms="marker.zooms"
+            :icon="marker.icon"
+            :text="marker.text"
         />
       </el-amap>
     </a-layout-content>
-    <a-layout-sider collapsible reverseArrow theme="light" width="400px">
+    <a-layout-sider collapsible reverseArrow theme="light" width="420px">
       <div class="margin">
         <a-tabs v-model:activeKey="activeKey" :tabPosition="'left'">
           <template #renderTabBar="{ DefaultTabBar, ...props }">
@@ -66,9 +76,12 @@
             <map-config :model="models"/>
             <a-divider />
             <layer-config :model="models"/>
+            <a-divider />
           </a-tab-pane>
-          <a-tab-pane :key="2" tab="标注">
+          <a-tab-pane :key="2" tab="标注" style="padding-left: 10px;">
             <markers-config :model="models"/>
+            <a-divider />
+            <label-markers-config :model="models" />
             <a-divider />
           </a-tab-pane>
         </a-tabs>
@@ -81,12 +94,14 @@
 import mapConfig from "@/AirMap/Config/MapConfig"
 import layerConfig from "@/AirMap/Config/LayerConfig"
 import markersConfig from "@/AirMap/Config/MarkersConfig"
+import labelMarkersConfig from "@/AirMap/Config/LabelMarkersConfig"
 export default {
   name: 'AirMap',
   components: {
     mapConfig,
     layerConfig,
-    markersConfig
+    markersConfig,
+    labelMarkersConfig
   },
   props: {
     models: {
@@ -169,10 +184,10 @@ export default {
       const zoom = e.target.wm.zoom
       this.models.map.zoom = zoom
     },
-    clickArrayMarker (marker){
+    clickMarker (marker){
       console.log(`点击了标号,标号ID： ${marker.id}`)
     },
-    dragendArrayMarker (marker, e, index){
+    dragendMarker (marker, e, index){
       this.models.markers[index].position = [e.lnglat.lng, e.lnglat.lat]
     }
   }
