@@ -21,6 +21,17 @@
       <a-row class="margin-top">
         <a-col :span="labelSpan">
           <a-tooltip>
+            <template #title>设置点标记是否可拖拽移动，默认为false。</template>
+            <div class="label">可拖动</div>
+          </a-tooltip>
+        </a-col>
+        <a-col :span="wrapperSpan">
+          <a-switch v-model:checked="item.draggable" checked-children="开" un-checked-children="关" />
+        </a-col>
+      </a-row>
+      <a-row class="margin-top">
+        <a-col :span="labelSpan">
+          <a-tooltip>
             <template #title>点标记在地图上显示的位置</template>
             <div class="label">坐标</div>
           </a-tooltip>
@@ -115,14 +126,15 @@
         </a-col>
       </a-row>
       <a-row class="margin-top">
-        <a-col :span="labelSpan">
+        <a-col :span="7">
           <a-tooltip>
-            <template #title>设置点标记是否可拖拽移动，默认为false。</template>
-            <div class="label">可拖动</div>
+            <template #title>边框颜色</template>
+            <div class="label">框线颜色</div>
           </a-tooltip>
         </a-col>
-        <a-col :span="wrapperSpan">
-          <a-switch v-model:checked="item.draggable" checked-children="开" un-checked-children="关" />
+        <a-col :span="14" class="label">{{ item.textStyle.borderColor }}</a-col>
+        <a-col :span="3">
+          <color-selector v-model:value="item.textStyle.borderColor" size="small"></color-selector>
         </a-col>
       </a-row>
     </a-card>
@@ -131,7 +143,7 @@
         <a-col :span="6"></a-col>
         <a-col :span="6">
           <a-button type="link" @click="add">
-            <template #icon><plus-outlined /></template>添加标签标注点
+            <template #icon><plus-outlined /></template>添加文本标注点
           </a-button>
         </a-col>
         <a-col :span="6"></a-col>
@@ -141,7 +153,7 @@
 </template>
 
 <script>
-import ColorSelector from "../../components/V3ColorPicker/V3ColorPicker.vue"
+import ColorSelector from "../../../components/V3ColorPicker/V3ColorPicker.vue"
 export default {
   name: "LabelMarkersConfig",
   components: {
@@ -184,14 +196,15 @@ export default {
         position: this.model.map.center,
         zIndex: 12,
         offset: [0, 0],
-        text: 'Hi！',
+        text: '文本标注',
         draggable: false,
         cursor: 'pointer',
         angle: 0,
         title: '',
         textStyle: {
           color: '#000000',
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          borderColor: '#ffffff'
         }
       }
       this.model.textMarkers.push(item)

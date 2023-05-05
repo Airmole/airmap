@@ -20,7 +20,7 @@ export default {
     },
   },
   mounted() {
-    document.title = 'Airmap';
+    if (this._isMobile()) alert('未做移动端适配，建议切换PC浏览器使用')
   },
   data() {
     return {
@@ -35,22 +35,22 @@ export default {
         },
         layer: {
           traffic: {
-            show: false,
+            visible: false,
             opacity: 1,
             zIndex: 4
           },
           satellite: {
-            show: false,
+            visible: false,
             opacity: 1,
             zIndex: 4
           },
           roadnet: {
-            show: false,
+            visible: false,
             opacity: 1,
             zIndex: 4
           },
           district: {
-            show: false,
+            visible: false,
             adcode: '350200',
             opacity: 1,
             zIndex: 4,
@@ -68,11 +68,18 @@ export default {
         },
         markers: [],
         labelMarkers: [],
-        textMarkers: []
+        textMarkers: [],
+        elasticMarkers: [],
+        polygons: [],
+        polylines: []
       }
     }
   },
-  methods: {},
+  methods: {
+    _isMobile () {
+      return navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
+    }
+  },
 };
 </script>
 <style>

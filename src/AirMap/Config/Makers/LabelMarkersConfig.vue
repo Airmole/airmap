@@ -288,7 +288,7 @@
 </template>
 
 <script>
-import ColorSelector from "../../components/V3ColorPicker/V3ColorPicker.vue"
+import ColorSelector from "../../../components/V3ColorPicker/V3ColorPicker.vue"
 export default {
   name: "LabelMarkersConfig",
   components: {

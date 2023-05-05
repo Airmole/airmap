@@ -14,24 +14,24 @@
         <el-amap-control-scale :visible="models.map.showScale" ></el-amap-control-scale>
         <el-amap-control-hawk-eye :visible="models.map.showHawkeye" ></el-amap-control-hawk-eye>
         <el-amap-layer-traffic
-            :visible="models.layer.traffic.show"
+            :visible="models.layer.traffic.visible"
             :opacity="models.layer.traffic.opacity"
             :zIndex="models.layer.traffic.zIndex"
         ></el-amap-layer-traffic>
         <el-amap-layer-satellite
-            :visible="models.layer.satellite.show"
+            :visible="models.layer.satellite.visible"
             :opacity="models.layer.satellite.opacity"
             :zIndex="models.layer.satellite.zIndex"
         ></el-amap-layer-satellite>
         <el-amap-layer-road-net
-            :visible="models.layer.roadnet.show"
+            :visible="models.layer.roadnet.visible"
             :opacity="models.layer.roadnet.opacity"
             :zIndex="models.layer.roadnet.zIndex"
         ></el-amap-layer-road-net>
         <el-amap-layer-district
             type="Province"
             :depth="2"
-            :visible="models.layer.district.show"
+            :visible="models.layer.district.visible"
             :adcode="models.layer.district.adcode"
             :opacity="models.layer.district.opacity"
             :styles="models.layer.district.styles"
@@ -52,7 +52,7 @@
             :title="marker.title"
             :clickable="marker.clickable"
             :label="marker.label"
-            @dragend="(e) => { dragendMarker(marker, e, index) }"
+            @dragend="(e) => { markerDragend(marker, e, index) }"
             @click="(e) => { clickMarker(marker, e, index) }"
         />
         <el-amap-label-marker
@@ -79,7 +79,48 @@
             :angle="marker.angle"
             :title="marker.title"
             :textStyle="marker.textStyle"
-            @dragend="(e) => { dragendTextMarker(marker, e, index) }"
+            @dragend="(e) => { textMarkerDragend(marker, e, index) }"
+        />
+        <el-amap-polygon
+            v-for="(polygon, index) in models.polygons"
+            :key="index"
+            :path="polygon.path"
+            :visible="polygon.visible"
+            :editable="polygon.editable"
+            :zIndex="polygon.zIndex"
+            :strokeColor="polygon.strokeColor"
+            :strokeOpacity="polygon.strokeOpacity"
+            :strokeWeight="polygon.strokeWeight"
+            :fillColor="polygon.fillColor"
+            :fillOpacity="polygon.fillOpacity"
+            :strokeStyle="polygon.strokeStyle"
+            :strokeDasharray="polygon.strokeDasharray"
+            :draggable="polygon.draggable"
+            @end="(e) => { polygonEditted(e, index) }"
+            @dragend="(e) => { polygonDragend(e, index) }"
+        />
+        <el-amap-polyline
+            v-for="(polyline, index) in models.polylines"
+            :key="index"
+            :visible="polyline.visible"
+            :editable="polyline.editable"
+            :draggable="polyline.draggable"
+            :path="polyline.path"
+            :zIndex="polyline.zIndex"
+            :strokeColor="polyline.strokeColor"
+            :strokeOpacity="polyline.strokeOpacity"
+            :strokeWeight="polyline.strokeWeight"
+            :borderWeight="polyline.borderWeight"
+            :isOutline="polyline.isOutline"
+            :outlineColor="polyline.outlineColor"
+            :strokeStyle="polyline.strokeStyle"
+            :strokeDasharray="polyline.strokeDasharray"
+            :lineJoin="polyline.lineJoin"
+            :lineCap="polyline.lineCap"
+            :geodesic="polyline.geodesic"
+            :showDir="polyline.showDir"
+            @end="(e) => { polylineEditted(e, index) }"
+            @dragend="(e) => { polylineDragend(e, index) }"
         />
       </el-amap>
     </a-layout-content>
@@ -102,6 +143,11 @@
             <a-divider />
             <text-markers-config :model="models" />
           </a-tab-pane>
+          <a-tab-pane :key="3" tab="图形" style="padding-left: 10px;">
+            <polylines-config :model="models" />
+            <a-divider />
+            <polygons-config :model="models" />
+          </a-tab-pane>
         </a-tabs>
       </div>
     </a-layout-sider>
@@ -109,18 +155,22 @@
 </template>
 
 <script>
-import mapConfig from "@/AirMap/Config/MapConfig"
-import layerConfig from "@/AirMap/Config/LayerConfig"
-import markersConfig from "@/AirMap/Config/MarkersConfig"
-import labelMarkersConfig from "@/AirMap/Config/LabelMarkersConfig"
-import TextMarkersConfig from "@/AirMap/Config/TextMarkersConfig"
+import MapConfig from "@/AirMap/Config/MapConfig"
+import LayerConfig from "@/AirMap/Config/LayerConfig"
+import MarkersConfig from "@/AirMap/Config/Makers/MarkersConfig"
+import LabelMarkersConfig from "@/AirMap/Config/Makers/LabelMarkersConfig"
+import TextMarkersConfig from "@/AirMap/Config/Makers/TextMarkersConfig"
+import PolygonsConfig from "@/AirMap/Config/Graphical/PolygonsConfig";
+import PolylinesConfig from "@/AirMap/Config/Graphical/PolylinesConfig";
 export default {
   name: 'AirMap',
   components: {
-    mapConfig,
-    layerConfig,
-    markersConfig,
-    labelMarkersConfig,
+    PolylinesConfig,
+    PolygonsConfig,
+    MapConfig,
+    LayerConfig,
+    MarkersConfig,
+    LabelMarkersConfig,
     TextMarkersConfig
   },
   props: {
@@ -139,22 +189,22 @@ export default {
           },
           layer: {
             traffic: {
-              show: false,
+              visible: false,
               opacity: 1,
               zIndex: 4
             },
             satellite: {
-              show: false,
+              visible: false,
               opacity: 1,
               zIndex: 4
             },
             roadnet: {
-              show: false,
+              visible: false,
               opacity: 1,
               zIndex: 4
             },
             district: {
-              show: false,
+              visible: false,
               adcode: '350200',
               opacity: 1,
               zIndex: 4,
@@ -172,7 +222,10 @@ export default {
           },
           markers: [],
           labelMarkers: [],
-          textMarkers: []
+          textMarkers: [],
+          elasticMarkers: [],
+          polygons: [],
+          polylines: []
         }
       }
     }
@@ -206,14 +259,39 @@ export default {
       const zoom = e.target.wm.zoom
       this.models.map.zoom = zoom
     },
-    clickMarker (marker){
+    clickMarker (marker) {
       console.log(`点击了标号,标号ID： ${marker.id}`)
     },
-    dragendMarker (marker, e, index){
+    markerDragend (marker, e, index) {
       this.models.markers[index].position = [e.lnglat.lng, e.lnglat.lat]
     },
-    dragendTextMarker (marker, e, index){
+    textMarkerDragend (marker, e, index) {
       this.models.textMarkers[index].position = [e.lnglat.lng, e.lnglat.lat]
+    },
+    polygonEditted(e, index) {
+      const points = e.target.getPath()
+      const path = []
+      if (!points) return
+      points.forEach((point) => {
+        path.push([point.lng, point.lat])
+      })
+      if (this.models.polygons && this.models.polygons[index]) this.models.polygons[index].path = path
+    },
+    polygonDragend (e, index) {
+      this.polygonEditted(e, index)
+    },
+    polylineEditted(e, index, isDrag = false) {
+      let points = e.target.getPath()
+      const path = []
+      if (!points) return
+      if (isDrag) points = points[0]
+      points.forEach((point) => {
+        path.push([point.lng, point.lat])
+      })
+      if (this.models.polylines && this.models.polylines[index]) this.models.polylines[index].path = path
+    },
+    polylineDragend (e, index) {
+      this.polylineEditted(e, index, true)
     }
   }
 }

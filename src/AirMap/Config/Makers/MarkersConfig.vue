@@ -21,6 +21,17 @@
       <a-row class="margin-top">
         <a-col :span="labelSpan">
           <a-tooltip>
+            <template #title>设置点标记是否可拖拽移动，默认为false。</template>
+            <div class="label">可拖动</div>
+          </a-tooltip>
+        </a-col>
+        <a-col :span="wrapperSpan">
+          <a-switch v-model:checked="item.draggable" checked-children="开" un-checked-children="关" />
+        </a-col>
+      </a-row>
+      <a-row class="margin-top">
+        <a-col :span="labelSpan">
+          <a-tooltip>
             <template #title>点标记在地图上显示的位置</template>
             <div class="label">坐标</div>
           </a-tooltip>
@@ -104,17 +115,6 @@
         </a-col>
         <a-col :span="wrapperSpan">
           <a-input v-model:value="item.content"/>
-        </a-col>
-      </a-row>
-      <a-row class="margin-top">
-        <a-col :span="labelSpan">
-          <a-tooltip>
-            <template #title>设置点标记是否可拖拽移动，默认为false。</template>
-            <div class="label">可拖动</div>
-          </a-tooltip>
-        </a-col>
-        <a-col :span="wrapperSpan">
-          <a-switch v-model:checked="item.draggable" checked-children="开" un-checked-children="关" />
         </a-col>
       </a-row>
       <a-row class="margin-top">
