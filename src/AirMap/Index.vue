@@ -122,6 +122,47 @@
             @end="(e) => { polylineEditted(e, index) }"
             @dragend="(e) => { polylineDragend(e, index) }"
         />
+        <el-amap-bezier-curve
+            v-for="(bezier, index) in models.beziers"
+            :key="index"
+            :visible="bezier.visible"
+            :editable="bezier.editable"
+            :draggable="bezier.draggable"
+            :path="bezier.path"
+            :zIndex="bezier.zIndex"
+            :strokeColor="bezier.strokeColor"
+            :strokeOpacity="bezier.strokeOpacity"
+            :strokeWeight="bezier.strokeWeight"
+            :borderWeight="bezier.borderWeight"
+            :isOutline="bezier.isOutline"
+            :outlineColor="bezier.outlineColor"
+            :strokeStyle="bezier.strokeStyle"
+            :strokeDasharray="bezier.strokeDasharray"
+            :lineJoin="bezier.lineJoin"
+            :lineCap="bezier.lineCap"
+            :geodesic="bezier.geodesic"
+            :showDir="bezier.showDir"
+            @end="(e) => { bezierEditted(e, index) }"
+            @dragend="(e) => { bezierDragend(e, index) }"
+        />
+        <el-amap-circle
+            v-for="(circle, index) in models.circles"
+            :key="index"
+            :center="circle.center"
+            :radius="circle.radius"
+            :editable="circle.editable"
+            :draggable="circle.draggable"
+            :zIndex="circle.zIndex"
+            :strokeColor="circle.strokeColor"
+            :strokeOpacity="circle.strokeOpacity"
+            :strokeWeight="circle.strokeWeight"
+            :fillColor="circle.fillColor"
+            :fillOpacity="circle.fillOpacity"
+            :strokeStyle="circle.strokeStyle"
+            :strokeDasharray="circle.strokeDasharray"
+            @end="(e) => { circleEditted(e, index) }"
+            @dragend="(e) => { circleDragend(e, index) }"
+        />
       </el-amap>
     </a-layout-content>
     <a-layout-sider collapsible reverseArrow theme="light" width="420px">
@@ -147,6 +188,10 @@
             <polylines-config :model="models" />
             <a-divider />
             <polygons-config :model="models" />
+            <a-divider />
+            <beziers-config :model="models" />
+            <a-divider />
+            <circles-config :model="models" />
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -160,8 +205,10 @@ import LayerConfig from "@/AirMap/Config/LayerConfig"
 import MarkersConfig from "@/AirMap/Config/Makers/MarkersConfig"
 import LabelMarkersConfig from "@/AirMap/Config/Makers/LabelMarkersConfig"
 import TextMarkersConfig from "@/AirMap/Config/Makers/TextMarkersConfig"
-import PolygonsConfig from "@/AirMap/Config/Graphical/PolygonsConfig";
-import PolylinesConfig from "@/AirMap/Config/Graphical/PolylinesConfig";
+import PolygonsConfig from "@/AirMap/Config/Graphical/PolygonsConfig"
+import PolylinesConfig from "@/AirMap/Config/Graphical/PolylinesConfig"
+import BeziersConfig from "@/AirMap/Config/Graphical/BeziersConfig"
+import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 export default {
   name: 'AirMap',
   components: {
@@ -171,7 +218,9 @@ export default {
     LayerConfig,
     MarkersConfig,
     LabelMarkersConfig,
-    TextMarkersConfig
+    TextMarkersConfig,
+    BeziersConfig,
+    CirclesConfig
   },
   props: {
     models: {
@@ -225,7 +274,10 @@ export default {
           textMarkers: [],
           elasticMarkers: [],
           polygons: [],
-          polylines: []
+          polylines: [],
+          beziers: [],
+          circles: [],
+          ellipses: []
         }
       }
     }
@@ -292,6 +344,21 @@ export default {
     },
     polylineDragend (e, index) {
       this.polylineEditted(e, index, true)
+    },
+    bezierEditted(e, index) {
+      let points = e.target.getPath()
+      if (!points) return
+      if (this.models.beziers && this.models.beziers[index]) this.models.beziers[index].path = points
+    },
+    bezierDragend (e, index) {
+      this.bezierEditted(e, index)
+    },
+    circleEditted(e, index) {
+      const radius = e.target.getRadius()
+      this.models.circles[index].radius = radius
+    },
+    circleDragend (e, index) {
+      this.models.circles[index].center = [e.lnglat.lng, e.lnglat.lat]
     }
   }
 }

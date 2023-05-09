@@ -71,7 +71,10 @@ export default {
         textMarkers: [],
         elasticMarkers: [],
         polygons: [],
-        polylines: []
+        polylines: [],
+        beziers: [],
+        circles: [],
+        ellipses: []
       }
     }
   },
