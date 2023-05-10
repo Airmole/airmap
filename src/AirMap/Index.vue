@@ -148,6 +148,7 @@
         <el-amap-circle
             v-for="(circle, index) in models.circles"
             :key="index"
+            :visible="circle.visible"
             :center="circle.center"
             :radius="circle.radius"
             :editable="circle.editable"
@@ -162,6 +163,43 @@
             :strokeDasharray="circle.strokeDasharray"
             @end="(e) => { circleEditted(e, index) }"
             @dragend="(e) => { circleDragend(e, index) }"
+        />
+        <el-amap-ellipse
+            v-for="(ellipse, index) in models.ellipses"
+            :key="index"
+            :visible="ellipse.visible"
+            :center="ellipse.center"
+            :radius="ellipse.radius"
+            :editable="ellipse.editable"
+            :draggable="ellipse.draggable"
+            :zIndex="ellipse.zIndex"
+            :strokeColor="ellipse.strokeColor"
+            :strokeOpacity="ellipse.strokeOpacity"
+            :strokeWeight="ellipse.strokeWeight"
+            :fillColor="ellipse.fillColor"
+            :fillOpacity="ellipse.fillOpacity"
+            :strokeStyle="ellipse.strokeStyle"
+            :strokeDasharray="ellipse.strokeDasharray"
+            @end="(e) => { ellipseEditted(e, index) }"
+            @dragend="(e) => { ellipseDragend(e, index) }"
+        />
+        <el-amap-rectangle
+            v-for="(rectangle, index) in models.rectangles"
+            :key="index"
+            :bounds="rectangle.bounds"
+            :visible="rectangle.visible"
+            :editable="rectangle.editable"
+            :draggable="rectangle.draggable"
+            :zIndex="rectangle.zIndex"
+            :strokeColor="rectangle.strokeColor"
+            :strokeOpacity="rectangle.strokeOpacity"
+            :strokeWeight="rectangle.strokeWeight"
+            :fillColor="rectangle.fillColor"
+            :fillOpacity="rectangle.fillOpacity"
+            :strokeStyle="rectangle.strokeStyle"
+            :strokeDasharray="rectangle.strokeDasharray"
+            @end="(e) => { rectangleEditted(e, index) }"
+            @dragend="(e) => { rectangleDragend(e, index) }"
         />
       </el-amap>
     </a-layout-content>
@@ -192,6 +230,10 @@
             <beziers-config :model="models" />
             <a-divider />
             <circles-config :model="models" />
+            <a-divider />
+            <ellipses-config :model="models" />
+            <a-divider />
+            <rectangles-config :model="models" />
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -209,9 +251,13 @@ import PolygonsConfig from "@/AirMap/Config/Graphical/PolygonsConfig"
 import PolylinesConfig from "@/AirMap/Config/Graphical/PolylinesConfig"
 import BeziersConfig from "@/AirMap/Config/Graphical/BeziersConfig"
 import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
+import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
+import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 export default {
   name: 'AirMap',
   components: {
+    RectanglesConfig,
+    EllipsesConfig,
     PolylinesConfig,
     PolygonsConfig,
     MapConfig,
@@ -277,7 +323,8 @@ export default {
           polylines: [],
           beziers: [],
           circles: [],
-          ellipses: []
+          ellipses: [],
+          rectangles: []
         }
       }
     }
@@ -355,10 +402,28 @@ export default {
     },
     circleEditted(e, index) {
       const radius = e.target.getRadius()
-      this.models.circles[index].radius = radius
+      if (radius && this.models.circles[index]) this.models.circles[index].radius = radius
     },
     circleDragend (e, index) {
-      this.models.circles[index].center = [e.lnglat.lng, e.lnglat.lat]
+      if (this.models.circles && this.models.circles[index]) this.models.circles[index].center = [e.lnglat.lng, e.lnglat.lat]
+    },
+    ellipseEditted(e, index) {
+      const radius = e.target.getRadius()
+      if (radius && this.models.ellipses[index]) this.models.ellipses[index].radius = radius
+    },
+    ellipseDragend (e, index) {
+      if (this.models.ellipses && this.models.ellipses[index]) this.models.ellipses[index].center = [e.lnglat.lng, e.lnglat.lat]
+    },
+    rectangleEditted(e, index) {
+      const options = e.target.getOptions()
+      const bounds = [
+        [options.bounds.northEast.lng, options.bounds.northEast.lat],
+        [options.bounds.southWest.lng, options.bounds.southWest.lat]
+      ]
+      if (bounds && this.models.rectangles[index]) this.models.rectangles[index].bounds = bounds
+    },
+    rectangleDragend (e, index) {
+      this.rectangleEditted(e, index)
     }
   }
 }

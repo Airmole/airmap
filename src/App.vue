@@ -74,7 +74,8 @@ export default {
         polylines: [],
         beziers: [],
         circles: [],
-        ellipses: []
+        ellipses: [],
+        rectangles: []
       }
     }
   },
