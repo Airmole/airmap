@@ -433,6 +433,7 @@ export default {
       const node = document.getElementsByTagName('canvas')[0]
       html2canvas(node, {
         useCORS: true,
+        allowTaint: true,
         height: node.offsetHeight,
         width: node.offsetWidth,
         scrollY: 0,
