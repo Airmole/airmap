@@ -6,6 +6,7 @@
           :zoom="models.map.zoom"
           :rotation="models.map.rotation"
           :features="models.map.features"
+          :mapStyle="models.map.mapStyle"
           @init="init"
           @click="click"
           @dragend="dragend"
@@ -280,6 +281,7 @@ export default {
         return {
           map: {
             center: [],
+            mapStyle: 'amap://styles/normal',
             zoom: 16,
             rotation: 0,
             features: ['bg', 'point', 'road', 'building'],
@@ -439,11 +441,18 @@ export default {
         scrollY: 0,
         scrollX: 0
       }).then(async (canvas) => {
-        let oImg = new Image();
-        oImg.src = canvas.toDataURL();  // 导出图片
-        document.body.appendChild(oImg);  // 将生成的图片添加到body
+        const link = canvas.toDataURL("image/jpg")
+        this.downloadPicture(link, "amap.jpg")
       })
-
+    },
+    downloadPicture(link, name = "amap.jpg") {
+      const file = document.createElement("a");
+      file.style.display = "none";
+      file.href = link;
+      file.download = decodeURI(name);
+      document.body.appendChild(file);
+      file.click();
+      document.body.removeChild(file);
     }
   }
 }

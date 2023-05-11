@@ -27,6 +27,7 @@ export default {
       models: {
         map: {
           center: [118.126559, 24.498822],
+          mapStyle: 'amap://styles/normal',
           zoom: 16,
           rotation: 0,
           features: ['bg', 'point', 'road', 'building'],

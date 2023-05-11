@@ -18,6 +18,18 @@
     <a-row class="margin-top">
       <a-col :span="6">
         <a-tooltip>
+          <template #title>设置地图的显示样式</template>
+          <div class="label">地图样式</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="17">
+        <a-select v-model:value="model.map.mapStyle" style="width: 100%" :options="mapStyles"
+        ></a-select>
+      </a-col>
+    </a-row>
+    <a-row class="margin-top">
+      <a-col :span="6">
+        <a-tooltip>
           <template #title>地图显示的缩放级别</template>
           <div class="label">缩放级别</div>
         </a-tooltip>
@@ -89,6 +101,19 @@ export default {
         { label: 'POI点', value: 'point' },
         { label: '道路', value: 'road' },
         { label: '建筑物', value: 'building' }
+      ],
+      mapStyles: [
+        { label: '标准', value: 'amap://styles/normal' },
+        { label: '幻影黑', value: 'amap://styles/dark' },
+        { label: '月光银', value: 'amap://styles/light' },
+        { label: '远山黛', value: 'amap://styles/whitesmoke' },
+        { label: '草色青', value: 'amap://styles/fresh' },
+        { label: '雅士灰', value: 'amap://styles/grey' },
+        { label: '涂鸦', value: 'amap://styles/graffiti' },
+        { label: '马卡龙', value: 'amap://styles/macaron' },
+        { label: '靛青蓝', value: 'amap://styles/blue' },
+        { label: '极夜蓝', value: 'amap://styles/darkblue' },
+        { label: '酱籽', value: 'amap://styles/wine' }
       ]
     }
   }
