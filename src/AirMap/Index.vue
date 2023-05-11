@@ -235,6 +235,9 @@
             <a-divider />
             <rectangles-config :model="models" />
           </a-tab-pane>
+          <a-tab-pane :key="4" tab="其他" style="padding-left: 10px;">
+            <a-button @click="saveImage">保存图片</a-button>
+          </a-tab-pane>
         </a-tabs>
       </div>
     </a-layout-sider>
@@ -253,6 +256,7 @@ import BeziersConfig from "@/AirMap/Config/Graphical/BeziersConfig"
 import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
+import html2canvas from 'html2canvas'
 export default {
   name: 'AirMap',
   components: {
@@ -424,6 +428,21 @@ export default {
     },
     rectangleDragend (e, index) {
       this.rectangleEditted(e, index)
+    },
+    saveImage () {
+      const node = document.getElementsByTagName('canvas')[0]
+      html2canvas(node, {
+        useCORS: true,
+        height: node.offsetHeight,
+        width: node.offsetWidth,
+        scrollY: 0,
+        scrollX: 0
+      }).then(async (canvas) => {
+        let oImg = new Image();
+        oImg.src = canvas.toDataURL();  // 导出图片
+        document.body.appendChild(oImg);  // 将生成的图片添加到body
+      })
+
     }
   }
 }
