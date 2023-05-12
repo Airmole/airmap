@@ -1,7 +1,59 @@
 <template>
-  <a-layout :style="{height: `${screenHeight}px` }">
+  <a-layout :style="{height: `${screenHeight}px`, overflow: 'hidden' }">
+    <a-card
+        title="Airmap"
+        class="toolcard"
+        :tab-list="tabList"
+        :active-tab-key="activeKey"
+        @tabChange="key => { activeKey = key }"
+        v-drag
+    >
+      <template #extra>
+        <a-button v-if="foldToolbox" type="link" @click="foldToolbox = false">
+          <template #icon><down-outlined /></template>
+        </a-button>
+        <a-button v-else type="link" @click="foldToolbox = true">
+          <template #icon><up-outlined /></template>
+        </a-button>
+      </template>
+      <template #customTab="item" v-if="!foldToolbox">
+        <span><home-outlined />{{ item.tab }}</span>
+      </template>
+      <div class="toolbox-content" @mousedown.stop :style="{ height: `${screenHeight-190}px`}" v-if="!foldToolbox">
+        <template v-if="activeKey === '1'">
+          <map-config :model="models"/>
+          <a-divider />
+          <layer-config :model="models"/>
+          <a-divider />
+        </template>
+        <template v-if="activeKey === '2'">
+          <markers-config :model="models"/>
+          <a-divider />
+          <label-markers-config :model="models" />
+          <a-divider />
+          <text-markers-config :model="models" />
+        </template>
+        <template v-if="activeKey === '3'">
+          <polylines-config :model="models" />
+          <a-divider />
+          <polygons-config :model="models" />
+          <a-divider />
+          <beziers-config :model="models" />
+          <a-divider />
+          <circles-config :model="models" />
+          <a-divider />
+          <ellipses-config :model="models" />
+          <a-divider />
+          <rectangles-config :model="models" />
+        </template>
+        <template v-if="activeKey === '4'">
+          <a-button @click="saveImage">保存图片</a-button>
+        </template>
+      </div>
+    </a-card>
     <a-layout-content>
       <el-amap
+          style="z-index: -10"
           :center="models.map.center"
           :zoom="models.map.zoom"
           :rotation="models.map.rotation"
@@ -204,44 +256,6 @@
         />
       </el-amap>
     </a-layout-content>
-    <a-layout-sider collapsible reverseArrow theme="light" width="420px">
-      <div class="margin">
-        <a-tabs v-model:activeKey="activeKey" :tabPosition="'left'">
-          <template #renderTabBar="{ DefaultTabBar, ...props }">
-            <component :is="DefaultTabBar" v-bind="props" :style="{ marginLeft: '-25px' }" />
-          </template>
-          <a-tab-pane :key="1" tab="地图">
-            <map-config :model="models"/>
-            <a-divider />
-            <layer-config :model="models"/>
-            <a-divider />
-          </a-tab-pane>
-          <a-tab-pane :key="2" tab="标注" style="padding-left: 10px;">
-            <markers-config :model="models"/>
-            <a-divider />
-            <label-markers-config :model="models" />
-            <a-divider />
-            <text-markers-config :model="models" />
-          </a-tab-pane>
-          <a-tab-pane :key="3" tab="图形" style="padding-left: 10px;">
-            <polylines-config :model="models" />
-            <a-divider />
-            <polygons-config :model="models" />
-            <a-divider />
-            <beziers-config :model="models" />
-            <a-divider />
-            <circles-config :model="models" />
-            <a-divider />
-            <ellipses-config :model="models" />
-            <a-divider />
-            <rectangles-config :model="models" />
-          </a-tab-pane>
-          <a-tab-pane :key="4" tab="其他" style="padding-left: 10px;">
-            <a-button @click="saveImage">保存图片</a-button>
-          </a-tab-pane>
-        </a-tabs>
-      </div>
-    </a-layout-sider>
   </a-layout>
 </template>
 
@@ -258,6 +272,7 @@ import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import html2canvas from 'html2canvas'
+import { UpOutlined, DownOutlined, HomeOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'AirMap',
   components: {
@@ -271,71 +286,40 @@ export default {
     LabelMarkersConfig,
     TextMarkersConfig,
     BeziersConfig,
-    CirclesConfig
+    CirclesConfig,
+    UpOutlined,
+    DownOutlined,
+    HomeOutlined
   },
   props: {
     models: {
       type: [Object],
-      required: true,
-      default: function () {
-        return {
-          map: {
-            center: [],
-            mapStyle: 'amap://styles/normal',
-            zoom: 16,
-            rotation: 0,
-            features: ['bg', 'point', 'road', 'building'],
-            showScale: false,
-            showHawkeye: false,
-          },
-          layer: {
-            traffic: {
-              visible: false,
-              opacity: 1,
-              zIndex: 4
-            },
-            satellite: {
-              visible: false,
-              opacity: 1,
-              zIndex: 4
-            },
-            roadnet: {
-              visible: false,
-              opacity: 1,
-              zIndex: 4
-            },
-            district: {
-              visible: false,
-              adcode: '350200',
-              opacity: 1,
-              zIndex: 4,
-              styles: {
-                fill: '#46A4E7',
-                zIndex: 0,
-                'stroke-width': '',
-                'coastline-stroke':  [0.18,0.63,0.94,1],
-                'nation-stroke': [0.35,0.35,0.35,1],
-                'province-stroke': [0.5,0.5,0.5,1],
-                'city-stroke': [0.7,0.7,0.7,1],
-                'county-stroke': [0.85,0.85,0.85,1],
-              }
-            }
-          },
-          markers: [],
-          labelMarkers: [],
-          textMarkers: [],
-          elasticMarkers: [],
-          polygons: [],
-          polylines: [],
-          beziers: [],
-          circles: [],
-          ellipses: [],
-          rectangles: []
-        }
-      }
+      required: true
     }
   },
-  watch: {
+  directives:{
+    drag(el) {
+      let oDiv = el // 当前元素
+      // 禁止选择网页上的文字
+      document.onselectstart = function () { return false }
+      oDiv.onmousedown = function (e) {
+        // 鼠标按下，计算当前元素距离可视区的距离
+        let disX = e.clientX - oDiv.offsetLeft
+        let disY = e.clientY - oDiv.offsetTop
+        document.onmousemove = function (e) {
+          // 通过事件委托，计算移动的距离
+          let l = e.clientX - disX
+          let t = e.clientY - disY
+          oDiv.style.left = l + 'px'
+          oDiv.style.top = t + 'px'
+        }
+        document.onmouseup = function () {
+          document.onmousemove = null
+          document.onmouseup = null
+        }
+        return false
+      }
+    }
   },
   computed: {
     screenHeight () {
@@ -345,7 +329,14 @@ export default {
   data () {
     return {
       map: null,
-      activeKey: 1,
+      activeKey: '1',
+      foldToolbox: false,
+      tabList: [
+        { key: '1', tab: '地图' },
+        { key: '2', tab: '标注' },
+        { key: '3', tab: '图形' },
+        { key: '4', tab: '其他' },
+      ]
     }
   },
   mounted () {
@@ -465,4 +456,18 @@ export default {
 .right {
   overflow-y: scroll;
 }
+.toolcard {
+  width: 420px;
+  top: 20px;
+  right: 20px;
+  z-index: 99;
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.80);
+  border-radius: 20px;
+}
+.toolbox-content {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
 </style>
