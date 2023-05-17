@@ -17,7 +17,13 @@
         </a-button>
       </template>
       <template #customTab="item" v-if="!foldToolbox">
-        <span><home-outlined />{{ item.tab }}</span>
+        <span>
+          <compass-outlined v-if="item.tab === '地图'" />
+          <environment-outlined v-if="item.tab === '标注'" />
+          <node-index-outlined v-if="item.tab === '图形'" />
+          <appstore-outlined v-if="item.tab === '导出'" />
+          {{ item.tab }}
+        </span>
       </template>
       <div class="toolbox-content" @mousedown.stop :style="{ height: `${screenHeight-190}px`}" v-if="!foldToolbox">
         <template v-if="activeKey === '1'">
@@ -272,7 +278,14 @@ import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import html2canvas from 'html2canvas'
-import { UpOutlined, DownOutlined, HomeOutlined } from '@ant-design/icons-vue'
+import {
+  UpOutlined,
+  DownOutlined,
+  CompassOutlined,
+  EnvironmentOutlined,
+  NodeIndexOutlined,
+  AppstoreOutlined
+} from '@ant-design/icons-vue'
 export default {
   name: 'AirMap',
   components: {
@@ -289,7 +302,10 @@ export default {
     CirclesConfig,
     UpOutlined,
     DownOutlined,
-    HomeOutlined
+    CompassOutlined,
+    EnvironmentOutlined,
+    NodeIndexOutlined,
+    AppstoreOutlined
   },
   props: {
     models: {
@@ -335,7 +351,7 @@ export default {
         { key: '1', tab: '地图' },
         { key: '2', tab: '标注' },
         { key: '3', tab: '图形' },
-        { key: '4', tab: '其他' },
+        { key: '4', tab: '导出' },
       ]
     }
   },
