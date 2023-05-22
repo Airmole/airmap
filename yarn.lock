@@ -21,6 +21,13 @@
   resolved "https://registry.npmmirror.com/@amap/amap-jsapi-types/-/amap-jsapi-types-0.0.10.tgz#0e8e69ac8921ed3dde74da209dbb7e04b830debd"
   integrity sha512-znvqLGPBy9NRCr1/3650o9vL1aYl/f1YK0+UGn8lBUvHJXND6uMDJGJsl43cEYglw9/tblwIRxjm4pIotOvSCQ==
 
+"@amap/screenshot@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.npmmirror.com/@amap/screenshot/-/screenshot-0.0.3.tgz#633f459f776e63bd18b878c84ab3e85aab650695"
+  integrity sha512-4THgormzse01FyGDLnWdFIN96Pb3DvoJoI98SXgyOBeJ3Bya5vPSedV14DnEhusGsDPgF1844yMC9+DreEG0yQ==
+  dependencies:
+    html2canvas "^1.4.1"
+
 "@ampproject/remapping@^2.1.0":
   version "2.1.2"
   resolved "https://registry.npmmirror.com/@ampproject/remapping/-/remapping-2.1.2.tgz#4edca94973ded9630d20101cd8559cedb8d8bd34"

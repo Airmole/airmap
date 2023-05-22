@@ -219,6 +219,9 @@ export default {
 <style scoped>
 .card {
   margin: 5px 5px 10px 0;
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.58);
 }
 .show-circle {
   font-size: 16px;

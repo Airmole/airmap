@@ -63,7 +63,7 @@ export default defineComponent({
     },
     zIndex: {
       type: Number,
-      default: 2
+      default: 99
     },
     theme: {
       type: String,

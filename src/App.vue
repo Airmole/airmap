@@ -26,13 +26,18 @@ export default {
     return {
       models: {
         map: {
-          center: [118.126559, 24.498822],
+          render: true,
+          center: null,
           mapStyle: 'amap://styles/normal',
           zoom: 16,
           rotation: 0,
           features: ['bg', 'point', 'road', 'building'],
           showScale: false,
           showHawkeye: false,
+          viewMode: '2D',
+          pitch: 60,
+          showLabel: true,
+          skyColor: '#5D91D7'
         },
         layer: {
           traffic: {

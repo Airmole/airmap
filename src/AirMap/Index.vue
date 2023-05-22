@@ -1,21 +1,44 @@
 <template>
   <a-layout :style="{height: `${screenHeight}px`, overflow: 'hidden' }">
     <a-card
-        title="Airmap"
+        ref="toolbox"
         class="toolcard"
         :tab-list="tabList"
         :active-tab-key="activeKey"
         @tabChange="key => { activeKey = key }"
         v-drag
     >
-      <template #extra>
-        <a-button v-if="foldToolbox" type="link" @click="foldToolbox = false">
-          <template #icon><down-outlined /></template>
-        </a-button>
-        <a-button v-else type="link" @click="foldToolbox = true">
-          <template #icon><up-outlined /></template>
-        </a-button>
+      <!--工具栏标题-->
+      <template #title>
+        <a-tooltip color="grey">
+          <template #title>
+            <a-typography-text class="ant-typography" keyboard>Ctrl</a-typography-text> + <a-typography-text class="ant-typography" keyboard>A</a-typography-text> 隐藏工具栏
+            <br/><a-typography-text class="ant-typography" keyboard>Ctrl</a-typography-text> + <a-typography-text class="ant-typography" keyboard>D</a-typography-text> 复位工具栏
+            <br/><a-typography-text class="ant-typography" keyboard>Ctrl</a-typography-text> + <a-typography-text class="ant-typography" keyboard>R</a-typography-text> 重载渲染地图
+          </template>
+          Airmap
+        </a-tooltip>
       </template>
+      <!--工具栏右侧-->
+      <template #extra>
+        <a-tooltip v-if="foldToolbox">
+          <template #title>
+            <a-typography-text class="ant-typography" keyboard>Ctrl</a-typography-text> + <a-typography-text class="ant-typography" keyboard>F</a-typography-text> 折叠工具栏
+          </template>
+          <a-button type="link" @click="foldToolbox = false">
+            <template #icon><down-outlined/></template>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip v-else>
+          <template #title>
+            <a-typography-text class="ant-typography" keyboard>Ctrl</a-typography-text> + <a-typography-text class="ant-typography" keyboard>F</a-typography-text> 折叠工具栏
+          </template>
+          <a-button type="link" @click="foldToolbox = true">
+            <template #icon><up-outlined/></template>
+          </a-button>
+        </a-tooltip>
+      </template>
+      <!--工具栏选项卡-->
       <template #customTab="item" v-if="!foldToolbox">
         <span>
           <compass-outlined v-if="item.tab === '地图'" />
@@ -25,9 +48,10 @@
           {{ item.tab }}
         </span>
       </template>
+      <!--工具栏内容-->
       <div class="toolbox-content" @mousedown.stop :style="{ height: `${screenHeight-190}px`}" v-if="!foldToolbox">
         <template v-if="activeKey === '1'">
-          <map-config :model="models"/>
+          <map-config :model="models" :map="map" />
           <a-divider />
           <layer-config :model="models"/>
           <a-divider />
@@ -58,13 +82,20 @@
       </div>
     </a-card>
     <a-layout-content>
+      <!--地图实例-->
       <el-amap
+          v-if="models.map.render"
           style="z-index: -10"
           :center="models.map.center"
           :zoom="models.map.zoom"
           :rotation="models.map.rotation"
           :features="models.map.features"
           :mapStyle="models.map.mapStyle"
+          :pitch="models.map.pitch"
+          :viewMode="models.map.viewMode"
+          :skyColor="models.map.skyColor"
+          :showLabel="models.map.showLabel"
+          :webGLParams="{ preserveDrawingBuffer: true }"
           @init="init"
           @click="click"
           @dragend="dragend"
@@ -277,7 +308,7 @@ import BeziersConfig from "@/AirMap/Config/Graphical/BeziersConfig"
 import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
-import html2canvas from 'html2canvas'
+import { Screenshot } from '@amap/screenshot'
 import {
   UpOutlined,
   DownOutlined,
@@ -286,6 +317,7 @@ import {
   NodeIndexOutlined,
   AppstoreOutlined
 } from '@ant-design/icons-vue'
+
 export default {
   name: 'AirMap',
   components: {
@@ -346,6 +378,7 @@ export default {
     return {
       map: null,
       activeKey: '1',
+      showToolbox: false,
       foldToolbox: false,
       tabList: [
         { key: '1', tab: '地图' },
@@ -356,16 +389,34 @@ export default {
     }
   },
   mounted () {
+    // 按键事件
+    document.addEventListener('keydown', (e) => {
+      this.keyboardControl(e)
+    })
   },
   methods: {
     init (map) {
       this.map = map
+      var _this = this
+      // IP自定定位到用户所在城市
+      map.plugin('AMap.CitySearch', function () {
+        var citySearch = new AMap.CitySearch()
+        citySearch.getLocalCity(function (status, result) {
+          if (status === 'complete' && result.info === 'OK') {
+            _this.map.setBounds(result.bounds)
+            _this.models.map.center = [
+              _this.map.getCenter().lng,
+              _this.map.getCenter().lat
+            ]
+          }
+        })
+      })
     },
     click (e) {
       this.models.map.center = [e.lnglat.lng, e.lnglat.lat]
     },
     dragend (e) {
-      this.click(e)
+      this.models.map.center = [ e.target.getCenter().lng, e.target.getCenter().lat ]
     },
     zoomend (e) {
       const zoom = e.target.wm.zoom
@@ -438,28 +489,44 @@ export default {
     rectangleDragend (e, index) {
       this.rectangleEditted(e, index)
     },
-    saveImage () {
-      const node = document.getElementsByTagName('canvas')[0]
-      html2canvas(node, {
-        useCORS: true,
-        allowTaint: true,
-        height: node.offsetHeight,
-        width: node.offsetWidth,
-        scrollY: 0,
-        scrollX: 0
-      }).then(async (canvas) => {
-        const link = canvas.toDataURL("image/jpg")
-        this.downloadPicture(link, "amap.jpg")
-      })
+    keyboardControl(e) {
+      // [Ctrl] + [A] 隐藏控制板
+      if (e.ctrlKey && e.keyCode === 65) {
+        this.displayToolbox()
+      }
+      // [Ctrl] + [D] 初始化控制板(不修改参数值)
+      if (e.ctrlKey && e.keyCode === 68) {
+        this.displayToolbox(true)
+      }
+      // [Ctrl] + [F] 折叠展开控制板
+      if (e.ctrlKey && e.keyCode === 70) {
+        this.foldToolbox = !this.foldToolbox
+      }
+      // [Ctrl] + [R] 重新渲染加载地图实例
+      if (e.ctrlKey && e.keyCode === 82) {
+        this.models.map.render = false
+        setTimeout(() => { this.models.map.render = true }, 1000) // 1秒后重新渲染地图实例
+      }
     },
-    downloadPicture(link, name = "amap.jpg") {
-      const file = document.createElement("a");
-      file.style.display = "none";
-      file.href = link;
-      file.download = decodeURI(name);
-      document.body.appendChild(file);
-      file.click();
-      document.body.removeChild(file);
+    displayToolbox (force = false) {
+      this.showToolbox = !this.showToolbox
+      this.$refs.toolbox.$el.style.display = this.showToolbox ? 'unset' : 'none'
+      if (force === true) {
+        this.$refs.toolbox.$el.style.top = '20px'
+        this.$refs.toolbox.$el.style.left = `${document.body.clientWidth - 440}px`
+        this.$refs.toolbox.$el.style.display = 'unset'
+      }
+    },
+    saveImage () {
+      const screenshot = new Screenshot(this.map)
+      screenshot.download({
+        type: 'image/jpeg',
+        filename: 'amap.jpg'
+      }).then(() => {
+        console.log('下载成功')
+      }).catch((error) => {
+        console.log(error)
+      })
     }
   }
 }
@@ -484,6 +551,9 @@ export default {
 .toolbox-content {
   overflow-x: hidden;
   overflow-y: scroll;
+}
+.ant-typography {
+  background-color: #ffffff;
 }
 
 </style>

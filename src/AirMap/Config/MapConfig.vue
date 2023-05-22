@@ -4,14 +4,46 @@
     <a-row class="margin-top">
       <a-col :span="6">
         <a-tooltip>
-          <template #title>地图中心经纬度</template>
-          <div class="label">快速定位</div>
+          <template #title>地图视图模式, 默认为‘2D’，可选’3D’，选择‘3D’会显示 3D 地图效果。</template>
+          <div class="label">视图模式</div>
         </a-tooltip>
       </a-col>
       <a-col :span="17">
-        <a-input-group compact>
+        <a-switch
+            v-model:checked="model.map.viewMode"
+            checked-children="3D"
+            un-checked-children="2D"
+            checked-value="3D"
+            un-checked-value="2D"
+            @change="viewChange"
+        />
+      </a-col>
+    </a-row>
+    <a-row class="margin-top">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>使用行政区县市名称、adcode、citycode等设置地图的中心点</template>
+          <div class="label">城市定位</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="17">
+        <a-input v-model:value="cityName" @change="cityNameChange"></a-input>
+      </a-col>
+    </a-row>
+    <a-row class="margin-top">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>地图中心经纬度定位</template>
+          <div class="label">经纬定位</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="17">
+        <a-input-group compact v-if="model.map.center">
           <a-input v-model:value="model.map.center[0]" style="width: 50%" />
           <a-input v-model:value="model.map.center[1]" style="width: 50%" />
+        </a-input-group>
+        <a-input-group compact v-else>
+          <a-input disabled style="width: 50%" /><a-input disabled style="width: 50%" />
         </a-input-group>
       </a-col>
     </a-row>
@@ -38,6 +70,32 @@
         <a-slider v-model:value="model.map.zoom" :min="2" :max="30" :step="0.01"/>
       </a-col>
     </a-row>
+    <a-row class="margin-top" v-if="model.map.viewMode === '3D'">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>俯仰角度，默认 0，最大值根据地图当前 zoom 级别不断增大，2D地图下无效 。</template>
+          <div class="label">俯仰角度</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="14">
+        <a-slider v-model:value="model.map.pitch" :min="0" :max="90"/>
+      </a-col>
+      <a-col :span="3">
+        <a-input-number v-model:value="model.map.pitch" :bordered="false" :min="0" :max="90" :controls="false" />
+      </a-col>
+    </a-row>
+    <a-row class="margin-top" v-if="model.map.viewMode === '3D'">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>天空颜色，3D 模式下带有俯仰角时会显示</template>
+          <div class="label">天空颜色</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="14" class="label">{{ model.map.skyColor }}</a-col>
+      <a-col :span="3">
+        <color-selector v-model:value="model.map.skyColor" size="small" @change="forceRenderMap"></color-selector>
+      </a-col>
+    </a-row>
     <a-row class="margin-top">
       <a-col :span="6">
         <a-tooltip>
@@ -45,8 +103,22 @@
           <div class="label">旋转角度</div>
         </a-tooltip>
       </a-col>
-      <a-col :span="17">
+      <a-col :span="14">
         <a-slider v-model:value="model.map.rotation" :min="0" :max="360"/>
+      </a-col>
+      <a-col :span="3">
+        <a-input-number v-model:value="model.map.rotation" :bordered="false" :min="0" :max="360" :controls="false" />
+      </a-col>
+    </a-row>
+    <a-row class="margin-top">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>是否展示地图文字和 POI 信息。默认 true</template>
+          <div class="label">地图文字</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="17">
+        <a-switch v-model:checked="model.map.showLabel" checked-children="显示" un-checked-children="隐藏" @change="forceRenderMap"/>
       </a-col>
     </a-row>
     <a-row class="margin-top">
@@ -79,23 +151,32 @@
         </a-tooltip>
       </a-col>
       <a-col :span="17">
-        <a-switch v-model:checked="model.map.showHawkeye" checked-children="显示" un-checked-children="隐藏" />
+        <a-switch v-model:checked="model.map.showHawkeye" checked-children="显示" un-checked-children="隐藏"/>
       </a-col>
     </a-row>
   </div>
 </template>
 
 <script>
+import ColorSelector from "../../components/V3ColorPicker/V3ColorPicker.vue"
 export default {
   name: "MapConfig",
+  components: {
+    ColorSelector
+  },
   props: {
     model: {
       type: [Object],
+      required: true
+    },
+    map: {
+      type: [Object, null],
       required: true
     }
   },
   data () {
     return {
+      cityName: '',
       featureOptions: [
         { label: '地图背景', value: 'bg' },
         { label: 'POI点', value: 'point' },
@@ -115,6 +196,19 @@ export default {
         { label: '极夜蓝', value: 'amap://styles/darkblue' },
         { label: '酱籽', value: 'amap://styles/wine' }
       ]
+    }
+  },
+  methods: {
+    viewChange (e) {
+      this.model.map.viewMode = e
+      this.forceRenderMap()
+    },
+    cityNameChange (e) {
+      this.map.setCity(e.target.value)
+    },
+    forceRenderMap () {
+      this.model.map.render = false
+      setTimeout(() => { this.model.map.render = true }, 1000) // 1秒后重新渲染地图实例
     }
   }
 }

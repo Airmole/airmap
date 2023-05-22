@@ -8,7 +8,8 @@ import '@vuemap/vue-amap/dist/style.css'
 
 initAMapApiLoader({
     key: process.env.VUE_APP_AMAP_KEY,
-    securityJsCode: process.env.VUE_APP_AMAP_SECURITY_CODE
+    securityJsCode: process.env.VUE_APP_AMAP_SECURITY_CODE,
+    plugins: ['AMap.CitySearch']
 })
 
 HTMLCanvasElement.prototype.getContext = function (origFn) {
