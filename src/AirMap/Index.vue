@@ -62,6 +62,8 @@
           <label-markers-config :model="models" />
           <a-divider />
           <text-markers-config :model="models" />
+          <a-divider />
+          <info-windows-config :model="models" :map="map" />
         </template>
         <template v-if="activeKey === '3'">
           <polylines-config :model="models" />
@@ -170,6 +172,18 @@
             :title="marker.title"
             :textStyle="marker.textStyle"
             @dragend="(e) => { textMarkerDragend(marker, e, index) }"
+        />
+        <el-amap-info-window
+            v-for="(window, index) in models.infoWindows"
+            :key="index"
+            :visible="window.visible"
+            :isCustom="window.isCustom"
+            :position="window.position"
+            :autoMove="window.autoMove"
+            :content="window.content"
+            :size="window.size"
+            :anchor="window.anchor"
+            @close="infoWindowClosed"
         />
         <el-amap-polygon
             v-for="(polygon, index) in models.polygons"
@@ -308,6 +322,7 @@ import BeziersConfig from "@/AirMap/Config/Graphical/BeziersConfig"
 import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
+import InfoWindowsConfig from "@/AirMap/Config/Makers/InfoWindowsConfig"
 import { Screenshot } from '@amap/screenshot'
 import {
   UpOutlined,
@@ -332,6 +347,7 @@ export default {
     TextMarkersConfig,
     BeziersConfig,
     CirclesConfig,
+    InfoWindowsConfig,
     UpOutlined,
     DownOutlined,
     CompassOutlined,
@@ -488,6 +504,9 @@ export default {
     },
     rectangleDragend (e, index) {
       this.rectangleEditted(e, index)
+    },
+    infoWindowClosed () {
+      this.models.infoWindows[0].visible = false
     },
     keyboardControl(e) {
       // [Ctrl] + [A] 隐藏控制板

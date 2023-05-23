@@ -76,6 +76,7 @@ export default {
         labelMarkers: [],
         textMarkers: [],
         elasticMarkers: [],
+        infoWindows: [],
         polygons: [],
         polylines: [],
         beziers: [],
