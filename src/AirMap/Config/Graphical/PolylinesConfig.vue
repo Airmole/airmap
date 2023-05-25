@@ -2,7 +2,7 @@
   <div>
     <a-collapse ghost>
       <a-collapse-panel key="1" header="折线">
-        <p>构造折现，曲线等线条，路径</p>
+        <p>构造折线，路径</p>
       </a-collapse-panel>
     </a-collapse>
     <a-card class="card" v-for="(item, index) in model.polylines" :key="index">
@@ -223,13 +223,19 @@
     </a-card>
     <div>
       <a-row>
-        <a-col :span="6"></a-col>
-        <a-col :span="6">
-          <a-button type="link" @click="add">
+        <a-col :span="12">
+          <a-button v-if="mouseDraw" type="link" @click="draw('polyline', false)">
+            <template #icon><stop-outlined /></template>绘制结束
+          </a-button>
+          <a-button v-else type="link" @click="draw('polyline', true)">
+            <template #icon><edit-outlined /></template>绘制折线
+          </a-button>
+        </a-col>
+        <a-col :span="12">
+          <a-button type="link" @click="add([])">
             <template #icon><plus-outlined /></template>添加折线
           </a-button>
         </a-col>
-        <a-col :span="6"></a-col>
       </a-row>
     </div>
   </div>
@@ -246,6 +252,10 @@ export default {
     model: {
       type: [Object],
       required: true
+    },
+    mouseDraw: {
+      type: [Boolean],
+      required: true
     }
   },
   data () {
@@ -255,11 +265,13 @@ export default {
     }
   },
   methods: {
-    add () {
-      const path = [
-        this.model.map.center,
-        [ this.model.map.center[0]+0.005, this.model.map.center[1] ]
-      ]
+    add (path) {
+      if (path.length === 0) {
+        path = [
+          this.model.map.center,
+          [ this.model.map.center[0]+0.005, this.model.map.center[1] ]
+        ]
+      }
       const item = {
         visible: true,
         draggable: false,
@@ -294,6 +306,9 @@ export default {
     },
     removePoint (index, idx) {
       this.model.polylines[index].path.splice(idx, 1)
+    },
+    draw (type, value) {
+      this.$emit('draw', type, value)
     }
   },
 }

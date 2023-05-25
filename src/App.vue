@@ -37,7 +37,9 @@ export default {
           viewMode: '2D',
           pitch: 60,
           showLabel: true,
-          skyColor: '#5D91D7'
+          skyColor: '#5D91D7',
+          hasMask: false,
+          mask: []
         },
         layer: {
           traffic: {

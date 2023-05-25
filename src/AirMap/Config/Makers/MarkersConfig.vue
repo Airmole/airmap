@@ -77,19 +77,19 @@
         </a-col>
         <a-col :span="wrapperSpan">
           <a-input-group compact>
-            <a-input
+            <a-input-number
                 v-model:value="item.zooms[0]"
-                style="width: 70px; text-align: center"
+                style="width: 42%; text-align: center"
                 placeholder="Minimum"
             />
             <a-input
-                style="width: 30px; border-left: 0; pointer-events: none; background-color: #fff"
+                style="width: 16%; border-left: 0; pointer-events: none; background-color: #fff"
                 placeholder="~"
                 disabled
             />
-            <a-input
+            <a-input-number
                 v-model:value="item.zooms[1]"
-                style="width: 70px; text-align: center; border-left: 0"
+                style="width: 42%; text-align: center; border-left: 0"
                 placeholder="Maximum"
             />
           </a-input-group>

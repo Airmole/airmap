@@ -168,25 +168,7 @@ export default {
   data () {
     return {
       labelSpan: 6,
-      wrapperSpan: 18,
-      anchorOptions: [
-        { label: '左上', value: 'top-left' },
-        { label: '左中', value: 'middle-left' },
-        { label: '左下', value: 'bottom-left' },
-        { label: '中上', value: 'top-center' },
-        { label: '中央', value: 'center' },
-        { label: '中下', value: 'bottom-center' },
-        { label: '右上', value: 'top-right' },
-        { label: '右中', value: 'middle-right' },
-        { label: '右下', value: 'bottom-right' }
-      ],
-      directionOptions: [
-        { label: '顶部', value: 'top' },
-        { label: '右侧', value: 'right' },
-        { label: '底部', value: 'bottom' },
-        { label: '左侧', value: 'left' },
-        { label: '中心', value: 'center' }
-      ]
+      wrapperSpan: 18
     }
   },
   methods: {

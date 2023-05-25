@@ -2,7 +2,7 @@
   <div>
     <a-collapse ghost>
       <a-collapse-panel key="1" header="贝塞尔曲线">
-        <p>贝塞尔曲线，<a href="https://lbs.amap.com/api/javascript-api-v2/documentation#beziercurve">https://lbs.amap.com/api/javascript-api-v2/documentation#beziercurve</a></p>
+        <p>贝塞尔曲线，<a href="https://lbs.amap.com/api/javascript-api-v2/documentation#beziercurve" target="_blank">https://lbs.amap.com/api/javascript-api-v2/documentation#beziercurve</a></p>
       </a-collapse-panel>
     </a-collapse>
     <a-card class="card" v-for="(item, index) in model.beziers" :key="index">

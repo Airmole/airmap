@@ -9,7 +9,7 @@ import '@vuemap/vue-amap/dist/style.css'
 initAMapApiLoader({
     key: process.env.VUE_APP_AMAP_KEY,
     securityJsCode: process.env.VUE_APP_AMAP_SECURITY_CODE,
-    plugins: ['AMap.CitySearch']
+    plugins: ['AMap.CitySearch', 'AMap.DistrictSearch', 'AMap.MouseTool']
 })
 
 HTMLCanvasElement.prototype.getContext = function (origFn) {

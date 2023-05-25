@@ -156,13 +156,19 @@
     </a-card>
     <div>
       <a-row>
-        <a-col :span="6"></a-col>
-        <a-col :span="6">
-          <a-button type="link" @click="add">
+        <a-col :span="12">
+          <a-button v-if="mouseDraw" type="link" @click="draw('rectangle', false)">
+            <template #icon><stop-outlined /></template>绘制结束
+          </a-button>
+          <a-button v-else type="link" @click="draw('rectangle', true)">
+            <template #icon><edit-outlined /></template>绘制矩形
+          </a-button>
+        </a-col>
+        <a-col :span="12">
+          <a-button type="link" @click="add([])">
             <template #icon><plus-outlined /></template>添加矩形
           </a-button>
         </a-col>
-        <a-col :span="6"></a-col>
       </a-row>
     </div>
   </div>
@@ -179,6 +185,10 @@ export default {
     model: {
       type: [Object],
       required: true
+    },
+    mouseDraw: {
+      type: [Boolean],
+      required: true
     }
   },
   data () {
@@ -188,12 +198,15 @@ export default {
     }
   },
   methods: {
-    add () {
-      const item = {
-        bounds: [
+    add (bounds) {
+      if (bounds.length === 0) {
+        bounds = [
           this.model.map.center,
           [this.model.map.center[0] + 0.005, this.model.map.center[1]+ 0.005]
-        ],
+        ]
+      }
+      const item = {
+        bounds: bounds,
         visible: true,
         draggable: false,
         editable: false,
@@ -210,6 +223,9 @@ export default {
     },
     remove (index) {
       this.model.rectangles.splice(index, 1)
+    },
+    draw (type, value) {
+      this.$emit('draw', type, value)
     }
   },
 }

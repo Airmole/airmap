@@ -160,13 +160,19 @@
     </a-card>
     <div>
       <a-row>
-        <a-col :span="6"></a-col>
-        <a-col :span="6">
-          <a-button type="link" @click="add">
+        <a-col :span="12">
+          <a-button v-if="mouseDraw" type="link" @click="draw('polygon', false)">
+            <template #icon><stop-outlined /></template>绘制结束
+          </a-button>
+          <a-button v-else type="link" @click="draw('polygon', true)">
+            <template #icon><edit-outlined /></template>绘制多边形
+          </a-button>
+        </a-col>
+        <a-col :span="12">
+          <a-button type="link" @click="add([])">
             <template #icon><plus-outlined /></template>添加多边形
           </a-button>
         </a-col>
-        <a-col :span="6"></a-col>
       </a-row>
     </div>
   </div>
@@ -183,6 +189,10 @@ export default {
     model: {
       type: [Object],
       required: true
+    },
+    mouseDraw: {
+      type: [Boolean],
+      required: true
     }
   },
   data () {
@@ -192,12 +202,14 @@ export default {
     }
   },
   methods: {
-    add () {
-      const path = [
-        this.model.map.center,
-        [ this.model.map.center[0]+0.005, this.model.map.center[1] ],
-        [ this.model.map.center[0], this.model.map.center[1]+0.005 ]
-      ]
+    add (path) {
+      if (path.length === 0) {
+        path = [
+          this.model.map.center,
+          [ this.model.map.center[0]+0.005, this.model.map.center[1] ],
+          [ this.model.map.center[0], this.model.map.center[1]+0.005 ]
+        ]
+      }
       const item = {
         visible: true,
         path: path,
@@ -227,6 +239,9 @@ export default {
     },
     removePoint (index, idx) {
       this.model.polygons[index].path.splice(idx, 1)
+    },
+    draw (type, value) {
+      this.$emit('draw', type, value)
     }
   },
 }

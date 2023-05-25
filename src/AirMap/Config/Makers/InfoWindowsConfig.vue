@@ -2,7 +2,7 @@
   <div>
     <a-collapse ghost>
       <a-collapse-panel key="1" header="信息窗体标注">
-        <p>用于在地图上展示复杂的说明性信息的类型。 信息窗体，地图仅可同时展示一个信息窗体，推荐为信息窗体通过样式显示设置尺寸</p>
+        <p>用于在地图上展示复杂的说明性信息的类型。 信息窗体，<span style="color: red;">地图仅可同时展示一个信息窗体</span>，推荐为信息窗体通过样式显示设置尺寸</p>
       </a-collapse-panel>
     </a-collapse>
     <a-card class="card" v-for="(item, index) in model.infoWindows" :key="index">
@@ -62,7 +62,7 @@
           </a-tooltip>
         </a-col>
         <a-col :span="wrapperSpan">
-          <a-input v-model:value="item.content"/>
+          <a-textarea v-model:value="item.content" :auto-size="{ minRows: 2 }"/>
         </a-col>
       </a-row>
       <a-row class="margin-top" v-if="!item.isCustom">
@@ -87,10 +87,7 @@
           </a-tooltip>
         </a-col>
         <a-col :span="wrapperSpan">
-          <a-radio-group v-model:value="item.anchor">
-            <a-radio value="bottom-center">底部中央</a-radio>
-            <a-radio value="top-left">顶部左侧</a-radio>
-          </a-radio-group>
+          <a-select v-model:value="item.anchor" style="width: 100%" :options="anchorOptions"></a-select>
         </a-col>
       </a-row>
     </a-card>
@@ -136,13 +133,6 @@ export default {
         { label: '右上', value: 'top-right' },
         { label: '右中', value: 'middle-right' },
         { label: '右下', value: 'bottom-right' }
-      ],
-      directionOptions: [
-        { label: '顶部', value: 'top' },
-        { label: '右侧', value: 'right' },
-        { label: '底部', value: 'bottom' },
-        { label: '左侧', value: 'left' },
-        { label: '中心', value: 'center' }
       ]
     }
   },

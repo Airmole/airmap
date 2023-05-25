@@ -43,8 +43,8 @@
         <span>
           <compass-outlined v-if="item.tab === '地图'" />
           <environment-outlined v-if="item.tab === '标注'" />
-          <node-index-outlined v-if="item.tab === '图形'" />
-          <appstore-outlined v-if="item.tab === '导出'" />
+          <border-outlined v-if="item.tab === '图形'" />
+          <node-index-outlined v-if="item.tab === '路线'" />
           {{ item.tab }}
         </span>
       </template>
@@ -53,8 +53,12 @@
         <template v-if="activeKey === '1'">
           <map-config :model="models" :map="map" />
           <a-divider />
-          <layer-config :model="models"/>
+          <layer-config :model="models" />
           <a-divider />
+          <measure-tool :map="map" :model="models" />
+          <a-divider />
+          <h4>保存导出</h4>
+          <a-button @click="saveImage">保存图片</a-button>
         </template>
         <template v-if="activeKey === '2'">
           <markers-config :model="models"/>
@@ -66,20 +70,19 @@
           <info-windows-config :model="models" :map="map" />
         </template>
         <template v-if="activeKey === '3'">
-          <polylines-config :model="models" />
+          <polylines-config ref="polylinesConfig" :model="models" :mouseDraw="mouseDraw" @draw="draw" />
           <a-divider />
-          <polygons-config :model="models" />
+          <polygons-config ref="polygonsConfig" :model="models" :mouseDraw="mouseDraw" @draw="draw" />
           <a-divider />
-          <beziers-config :model="models" />
+          <rectangles-config ref="rectanglesConfig" :model="models" :mouseDraw="mouseDraw" @draw="draw" />
           <a-divider />
-          <circles-config :model="models" />
+          <circles-config ref="circlesConfig" :model="models" :mouseDraw="mouseDraw" @draw="draw" />
           <a-divider />
           <ellipses-config :model="models" />
           <a-divider />
-          <rectangles-config :model="models" />
+          <beziers-config :model="models" />
         </template>
         <template v-if="activeKey === '4'">
-          <a-button @click="saveImage">保存图片</a-button>
         </template>
       </div>
     </a-card>
@@ -98,6 +101,7 @@
           :skyColor="models.map.skyColor"
           :showLabel="models.map.showLabel"
           :webGLParams="{ preserveDrawingBuffer: true }"
+          :mask="models.map.hasMask ? models.map.mask : null"
           @init="init"
           @click="click"
           @dragend="dragend"
@@ -305,6 +309,13 @@
             @end="(e) => { rectangleEditted(e, index) }"
             @dragend="(e) => { rectangleDragend(e, index) }"
         />
+        <!--图形绘制-->
+        <el-amap-mouse-tool
+            v-if="mouseDraw"
+            :type="mouseDrawType"
+            :autoClear="false"
+            @draw="drawed"
+        />
       </el-amap>
     </a-layout-content>
   </a-layout>
@@ -323,6 +334,7 @@ import CirclesConfig from "@/AirMap/Config/Graphical/CirclesConfig"
 import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import InfoWindowsConfig from "@/AirMap/Config/Makers/InfoWindowsConfig"
+import MeasureTool from "@/AirMap/Config/MeasureTool"
 import { Screenshot } from '@amap/screenshot'
 import {
   UpOutlined,
@@ -330,7 +342,7 @@ import {
   CompassOutlined,
   EnvironmentOutlined,
   NodeIndexOutlined,
-  AppstoreOutlined
+  BorderOutlined
 } from '@ant-design/icons-vue'
 
 export default {
@@ -353,7 +365,8 @@ export default {
     CompassOutlined,
     EnvironmentOutlined,
     NodeIndexOutlined,
-    AppstoreOutlined
+    BorderOutlined,
+    MeasureTool
   },
   props: {
     models: {
@@ -396,11 +409,15 @@ export default {
       activeKey: '1',
       showToolbox: false,
       foldToolbox: false,
+      mouseDraw: false,
+      mouseDrawType: 'polyline',
+      measureDraw: false,
+      measureDrawType: 'rule',
       tabList: [
         { key: '1', tab: '地图' },
         { key: '2', tab: '标注' },
         { key: '3', tab: '图形' },
-        { key: '4', tab: '导出' },
+        { key: '4', tab: '路线' },
       ]
     }
   },
@@ -414,7 +431,7 @@ export default {
     init (map) {
       this.map = map
       var _this = this
-      // IP自定定位到用户所在城市
+      // IP定位到用户所在城市
       map.plugin('AMap.CitySearch', function () {
         var citySearch = new AMap.CitySearch()
         citySearch.getLocalCity(function (status, result) {
@@ -429,13 +446,14 @@ export default {
       })
     },
     click (e) {
-      this.models.map.center = [e.lnglat.lng, e.lnglat.lat]
+      // this.models.map.center = [e.lnglat.lng, e.lnglat.lat]
+      console.log(e)
     },
     dragend (e) {
       this.models.map.center = [ e.target.getCenter().lng, e.target.getCenter().lat ]
     },
     zoomend (e) {
-      const zoom = e.target.wm.zoom
+      const zoom = e.target.getZoom()
       this.models.map.zoom = zoom
     },
     clickMarker (marker) {
@@ -508,6 +526,36 @@ export default {
     infoWindowClosed () {
       this.models.infoWindows[0].visible = false
     },
+    draw (type, value) {
+      this.mouseDraw = value
+      this.mouseDrawType = type
+    },
+    drawed (data) {
+      const type = this.mouseDrawType
+      this.mouseDraw = false
+      if (type === 'polyline') this.$refs.polylinesConfig.add(data)
+      if (type === 'polygon') this.$refs.polygonsConfig.add(data)
+      if (type === 'rectangle') this.$refs.rectanglesConfig.add(data)
+      if (type === 'circle') this.$refs.circlesConfig.add(data)
+      console.log('draw', data)
+    },
+    measure (type) {
+      const measureTypes = ['rule', 'measureArea']
+      if (measureTypes.includes(type)) {
+        this.measureDraw = true
+        this.measureDrawType = type
+      }
+      if (type === 'end') {
+        this.$refs.measureTool.$$getInstance().close(false)
+      }
+      if (type === 'clear') {
+        this.measureDraw = false
+        this.$refs.measureTool.$$getInstance().close(true)
+      }
+    },
+    measured (data) {
+      console.log('draw', data)
+    },
     keyboardControl(e) {
       // [Ctrl] + [A] 隐藏控制板
       if (e.ctrlKey && e.keyCode === 65) {
@@ -538,14 +586,26 @@ export default {
     },
     saveImage () {
       const screenshot = new Screenshot(this.map)
+      const filename = 'Airmap_' + this.timestampToTime() + '.jpg'
       screenshot.download({
         type: 'image/jpeg',
-        filename: 'amap.jpg'
+        filename: filename
       }).then(() => {
         console.log('下载成功')
       }).catch((error) => {
         console.log(error)
       })
+    },
+    timestampToTime (timestamp = 0) {
+      if (timestamp !== 0 && timestamp.toString().length === 10) timestamp = timestamp * 1000
+      const date = timestamp === 0 ? new Date() : new Date(timestamp)
+      const Y = date.getFullYear() + '-'
+      const M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1) + '-'
+      const D = (date.getDate()< 10 ? '0'+date.getDate():date.getDate())+ '_'
+      const h = (date.getHours() < 10 ? '0'+date.getHours():date.getHours())+ ':'
+      const m = (date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()) + ':'
+      const s = date.getSeconds() < 10 ? '0'+date.getSeconds():date.getSeconds()
+      return Y+M+D+h+m+s;
     }
   }
 }

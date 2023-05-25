@@ -27,7 +27,23 @@
         </a-tooltip>
       </a-col>
       <a-col :span="17">
-        <a-input v-model:value="cityName" @change="cityNameChange"></a-input>
+        <a-input v-model:value="cityName" @change="cityNameChange" placeholder="可输入省、市、县名称"></a-input>
+      </a-col>
+    </a-row>
+    <a-row class="margin-top" v-if="cityName">
+      <a-col :span="6">
+        <a-tooltip>
+          <template #title>通过 mask 属性为地图对象设定区域掩模，只显示行政区域内的图层和覆盖物</template>
+          <div class="label">区域掩模</div>
+        </a-tooltip>
+      </a-col>
+      <a-col :span="17">
+        <a-switch
+            v-model:checked="model.map.hasMask"
+            checked-children="开启"
+            un-checked-children="关闭"
+            @change="hasMaskChange"
+        />
       </a-col>
     </a-row>
     <a-row class="margin-top">
@@ -67,7 +83,7 @@
         </a-tooltip>
       </a-col>
       <a-col :span="17">
-        <a-slider v-model:value="model.map.zoom" :min="2" :max="30" :step="0.01"/>
+        <a-slider v-model:value="model.map.zoom" :min="2" :max="20" :step="0.01"/>
       </a-col>
     </a-row>
     <a-row class="margin-top" v-if="model.map.viewMode === '3D'">
@@ -205,6 +221,36 @@ export default {
     },
     cityNameChange (e) {
       this.map.setCity(e.target.value)
+    },
+    hasMaskChange (value) {
+      if (!value) {
+        this.model.map.mask = null
+        this.forceRenderMap()
+        return
+      }
+      if (!this.cityName) {
+        this.model.map.hasMask = false
+        this.$message.info('请先输入城市定位城市名称')
+        return
+      }
+
+      var _this = this
+      this.map.plugin('AMap.DistrictSearch', function () {
+        var district = new AMap.DistrictSearch({
+          subdistrict: 0,
+          extensions: 'all',
+          level: 'city'
+        })
+        district.search(_this.cityName, function(status, result) {
+          const bounds = result.districtList[0].boundaries;
+          const mask = [];
+          for (let i =0; i < bounds.length; i += 1) {
+            mask.push([bounds[i]])
+          }
+          _this.model.map.mask = mask
+          _this.forceRenderMap()
+        })
+      })
     },
     forceRenderMap () {
       this.model.map.render = false

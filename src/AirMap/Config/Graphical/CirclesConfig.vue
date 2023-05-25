@@ -165,13 +165,19 @@
     </a-card>
     <div>
       <a-row>
-        <a-col :span="6"></a-col>
-        <a-col :span="6">
+        <a-col :span="12">
+          <a-button v-if="mouseDraw" type="link" @click="draw('circle', false)">
+            <template #icon><stop-outlined /></template>绘制结束
+          </a-button>
+          <a-button v-else type="link" @click="draw('circle', true)">
+            <template #icon><edit-outlined /></template>绘制圆形
+          </a-button>
+        </a-col>
+        <a-col :span="12">
           <a-button type="link" @click="add">
             <template #icon><plus-outlined /></template>添加圆形
           </a-button>
         </a-col>
-        <a-col :span="6"></a-col>
       </a-row>
     </div>
   </div>
@@ -188,6 +194,10 @@ export default {
     model: {
       type: [Object],
       required: true
+    },
+    mouseDraw: {
+      type: [Boolean],
+      required: true
     }
   },
   data () {
@@ -197,10 +207,11 @@ export default {
     }
   },
   methods: {
-    add () {
+    add (data) {
+      if (data === {}) data = { center: this.model.map.center, radius: 100 }
       const item = {
-        center: this.model.map.center,
-        radius: 100,
+        center: data.center,
+        radius: data.radius,
         visible: true,
         draggable: false,
         editable: false,
@@ -217,6 +228,9 @@ export default {
     },
     remove (index) {
       this.model.circles.splice(index, 1)
+    },
+    draw (type, value) {
+      this.$emit('draw', type, value)
     }
   },
 }
