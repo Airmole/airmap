@@ -57,8 +57,7 @@
           <a-divider />
           <measure-tool :map="map" :model="models" />
           <a-divider />
-          <h4>保存导出</h4>
-          <a-button @click="saveImage">保存图片</a-button>
+          <export-tool :map="map" :model="models" />
         </template>
         <template v-if="activeKey === '2'">
           <markers-config :model="models"/>
@@ -335,7 +334,6 @@ import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import InfoWindowsConfig from "@/AirMap/Config/Makers/InfoWindowsConfig"
 import MeasureTool from "@/AirMap/Config/MeasureTool"
-import { Screenshot } from '@amap/screenshot'
 import {
   UpOutlined,
   DownOutlined,
@@ -344,10 +342,12 @@ import {
   NodeIndexOutlined,
   BorderOutlined
 } from '@ant-design/icons-vue'
+import ExportTool from "@/AirMap/Config/ExportTool";
 
 export default {
   name: 'AirMap',
   components: {
+    ExportTool,
     RectanglesConfig,
     EllipsesConfig,
     PolylinesConfig,
@@ -446,7 +446,6 @@ export default {
       })
     },
     click (e) {
-      // this.models.map.center = [e.lnglat.lng, e.lnglat.lat]
       console.log(e)
     },
     dragend (e) {
@@ -553,9 +552,6 @@ export default {
         this.$refs.measureTool.$$getInstance().close(true)
       }
     },
-    measured (data) {
-      console.log('draw', data)
-    },
     keyboardControl(e) {
       // [Ctrl] + [A] 隐藏控制板
       if (e.ctrlKey && e.keyCode === 65) {
@@ -574,6 +570,7 @@ export default {
         this.models.map.render = false
         setTimeout(() => { this.models.map.render = true }, 1000) // 1秒后重新渲染地图实例
       }
+      if (e.ctrlKey) e.preventDefault() // 阻止浏览器默认事件
     },
     displayToolbox (force = false) {
       this.showToolbox = !this.showToolbox
@@ -583,29 +580,6 @@ export default {
         this.$refs.toolbox.$el.style.left = `${document.body.clientWidth - 440}px`
         this.$refs.toolbox.$el.style.display = 'unset'
       }
-    },
-    saveImage () {
-      const screenshot = new Screenshot(this.map)
-      const filename = 'Airmap_' + this.timestampToTime() + '.jpg'
-      screenshot.download({
-        type: 'image/jpeg',
-        filename: filename
-      }).then(() => {
-        console.log('下载成功')
-      }).catch((error) => {
-        console.log(error)
-      })
-    },
-    timestampToTime (timestamp = 0) {
-      if (timestamp !== 0 && timestamp.toString().length === 10) timestamp = timestamp * 1000
-      const date = timestamp === 0 ? new Date() : new Date(timestamp)
-      const Y = date.getFullYear() + '-'
-      const M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1) + '-'
-      const D = (date.getDate()< 10 ? '0'+date.getDate():date.getDate())+ '_'
-      const h = (date.getHours() < 10 ? '0'+date.getHours():date.getHours())+ ':'
-      const m = (date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()) + ':'
-      const s = date.getSeconds() < 10 ? '0'+date.getSeconds():date.getSeconds()
-      return Y+M+D+h+m+s;
     }
   }
 }

@@ -1,12 +1,14 @@
 <template>
-  <div id="app">
-    <air-map :models="models"/>
-  </div>
+  <a-config-provider :locale="zh_CN">
+    <div id="app">
+      <air-map :models="models"/>
+    </div>
+  </a-config-provider>
 </template>
 
 <script>
+import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN'
 import AirMap from "./AirMap/Index"
-
 export default {
   components: {
     AirMap: AirMap,
@@ -24,6 +26,7 @@ export default {
   },
   data() {
     return {
+      zh_CN: zh_CN,
       models: {
         map: {
           render: true,
