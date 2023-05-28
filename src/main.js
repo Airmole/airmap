@@ -5,6 +5,7 @@ import 'ant-design-vue/dist/antd.css'
 import * as Icons from "@ant-design/icons-vue"
 import VueAMap, {initAMapApiLoader} from '@vuemap/vue-amap';
 import '@vuemap/vue-amap/dist/style.css'
+import './AirMap/index.css'
 
 initAMapApiLoader({
     key: process.env.VUE_APP_AMAP_KEY,

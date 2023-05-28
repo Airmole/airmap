@@ -398,14 +398,10 @@ export default {
       }
     }
   },
-  computed: {
-    screenHeight () {
-      return document.body.clientHeight
-    }
-  },
   data () {
     return {
       map: null,
+      screenHeight: document.body.clientHeight,
       activeKey: '1',
       showToolbox: false,
       foldToolbox: false,
@@ -425,6 +421,9 @@ export default {
     // 按键事件
     document.addEventListener('keydown', (e) => {
       this.keyboardControl(e)
+    })
+    window.addEventListener('resize', () => {
+      this.screenHeight = document.body.clientHeight
     })
   },
   methods: {
@@ -599,7 +598,7 @@ export default {
   z-index: 99;
   position: absolute;
   background-color: rgba(255, 255, 255, 0.80);
-  border-radius: 20px;
+  border-radius: 10px;
 }
 .toolbox-content {
   overflow-x: hidden;
