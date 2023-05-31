@@ -37,13 +37,13 @@
 # yarn build
 ```
 
-2. 待打包完成后，拷贝dist下所有文件到[airmap-pages](https://github.com/Airmole/airmap-pages)项目下替换文件
+2. 待打包完成后，拷贝dist下所有文件到 [airmap-pages](https://github.com/Airmole/airmap-pages) 项目下替换文件
 
 ```shell
 # cp -r ./dist/* ../airmap-pages/
 ```
 
-3. 提交合并到[airmap-pages](https://github.com/Airmole/airmap-pages)项目main分支，[New pull request](https://github.com/Airmole/airmap-pages/pulls)合并后自动发布
+3. 提交合并到 [airmap-pages](https://github.com/Airmole/airmap-pages) 项目main分支， [New pull request](https://github.com/Airmole/airmap-pages/pulls) 合并后自动发布
 
 ```shell
 # cd ../airmap-pages
@@ -51,3 +51,5 @@
 # git commit -m 'updated'
 # git push origin main // 如果你有main分支权限的话
 ```
+
+4. 成功，访问 [https://airmap.airmole.net/](https://airmap.airmole.net/)
