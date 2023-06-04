@@ -82,12 +82,18 @@
           <beziers-config :model="models" />
         </template>
         <template v-if="activeKey === '4'">
+          <a-button @click="draw('movingPath', true)">路径</a-button>
+          <a-button @click="cargo">出发</a-button>
+          <a-button @click="record">录屏</a-button>
+          <a-button @click="download">下载</a-button>
+          <a-button @click="showVideo">视频</a-button>
         </template>
       </div>
     </a-card>
     <a-layout-content>
       <!--地图实例-->
       <el-amap
+          class="amap"
           v-if="models.map.render"
           style="z-index: -10"
           :center="models.map.center"
@@ -316,6 +322,11 @@
             @draw="drawed"
         />
       </el-amap>
+      <a-modal v-model:visible="videoModal">
+        <video width="320" height="240" controls>
+          <source :src="videoSrc" type="video/mp4">
+        </video>
+      </a-modal>
     </a-layout-content>
   </a-layout>
 </template>
@@ -334,6 +345,7 @@ import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import InfoWindowsConfig from "@/AirMap/Config/Makers/InfoWindowsConfig"
 import MeasureTool from "@/AirMap/Config/MeasureTool"
+import screenRecord from "@/utils/screenRecord"
 import {
   UpOutlined,
   DownOutlined,
@@ -342,7 +354,8 @@ import {
   NodeIndexOutlined,
   BorderOutlined
 } from '@ant-design/icons-vue'
-import ExportTool from "@/AirMap/Config/ExportTool";
+import ExportTool from "@/AirMap/Config/ExportTool"
+import {time} from "@/utils/time"
 
 export default {
   name: 'AirMap',
@@ -409,6 +422,9 @@ export default {
       mouseDrawType: 'polyline',
       measureDraw: false,
       measureDrawType: 'rule',
+      movingPathSetting: false,
+      videoModal: false,
+      videoSrc: '',
       tabList: [
         { key: '1', tab: '地图' },
         { key: '2', tab: '标注' },
@@ -443,6 +459,7 @@ export default {
           }
         })
       })
+      this.screenRecord = new screenRecord()
     },
     click (e) {
       console.log(e)
@@ -525,12 +542,21 @@ export default {
       this.models.infoWindows[0].visible = false
     },
     draw (type, value) {
-      this.mouseDraw = value
+      if (type === 'movingPath') {
+        type = 'polyline'
+        this.movingPathSetting = true
+      }
       this.mouseDrawType = type
+      this.mouseDraw = value
     },
     drawed (data) {
       const type = this.mouseDrawType
       this.mouseDraw = false
+      if (this.movingPathSetting) {
+        this.movingPathSetting = false
+        this.setPath(data)
+        return
+      }
       if (type === 'polyline') this.$refs.polylinesConfig.add(data)
       if (type === 'polygon') this.$refs.polygonsConfig.add(data)
       if (type === 'rectangle') this.$refs.rectanglesConfig.add(data)
@@ -579,6 +605,59 @@ export default {
         this.$refs.toolbox.$el.style.left = `${document.body.clientWidth - 440}px`
         this.$refs.toolbox.$el.style.display = 'unset'
       }
+    },
+    setPath (data) {
+      var _this = this
+      this.lineArr = data
+      this.map.setCenter(_this.lineArr[0])
+      this.map.plugin('AMap.MoveAnimation', function () {
+        _this.cargoMarker = new AMap.Marker({
+          map: _this.map,
+          position: _this.lineArr[0],
+          icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+          offset: new AMap.Pixel(-13, -26),
+        })
+
+        var polyline = new AMap.Polyline({
+          map: _this.map,
+          path: _this.lineArr,
+          showDir:true,
+          strokeColor: "#28F",  //线颜色
+          strokeWeight: 6,      //线宽
+        });
+
+        var passedPolyline = new AMap.Polyline({
+          map: _this.map,
+          strokeColor: "#AF5",  //线颜色
+          strokeWeight: 6,      //线宽
+        })
+
+        _this.cargoMarker.on('moving', function (e) {
+          passedPolyline.setPath(e.passedPath);
+          _this.map.setCenter(e.target.getPosition(),true)
+        });
+        _this.map.setFitView()
+      })
+    },
+    cargo () {
+      this.cargoMarker.moveAlong(this.lineArr, {
+        // 每一段的时长
+        duration: 500,//可根据实际采集时间间隔设置
+        // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+        autoRotation: true
+      });
+      this.foldToolbox = true
+    },
+    record () {
+      this.screenRecord.start()
+    },
+    download () {
+      this.screenRecord.saveToFile(time.timeStringFilename())
+    },
+    showVideo () {
+      this.videoSrc = this.screenRecord.getUrl()
+      console.log('this.screenRecord.getUrl()', this.screenRecord.getUrl())
+      this.videoModal = true
     }
   }
 }

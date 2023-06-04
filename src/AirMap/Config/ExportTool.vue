@@ -36,6 +36,7 @@
 
 <script>
 import {Screenshot} from "@amap/screenshot/dist"
+import { time } from "@/utils/time"
 import {
   PictureOutlined,
   DownloadOutlined,
@@ -75,7 +76,7 @@ export default {
     },
     saveImage () {
       const screenshot = new Screenshot(this.map)
-      const filename = 'Airmap_' + this.timestampToTime() + '.jpg'
+      const filename = `Airmap_${time.timeStringFilename()}.jpg`
       screenshot.download({
         type: 'image/jpeg',
         filename: filename
@@ -88,7 +89,7 @@ export default {
     saveJson () {
       const text = JSON.stringify(this.model)
       console.log('text', text)
-      const filename = 'Airmap_' + this.timestampToTime() + '.json'
+      const filename = `Airmap_${time.timeStringFilename()}.json`
       const blob = new Blob([text], { type: 'text/plain' })
       const href = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -98,17 +99,6 @@ export default {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(href)
-    },
-    timestampToTime (timestamp = 0) {
-      if (timestamp !== 0 && timestamp.toString().length === 10) timestamp = timestamp * 1000
-      const date = timestamp === 0 ? new Date() : new Date(timestamp)
-      const Y = date.getFullYear() + '-'
-      const M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1) + '-'
-      const D = (date.getDate()< 10 ? '0'+date.getDate():date.getDate())+ '_'
-      const h = (date.getHours() < 10 ? '0'+date.getHours():date.getHours())+ ':'
-      const m = (date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()) + ':'
-      const s = date.getSeconds() < 10 ? '0'+date.getSeconds():date.getSeconds()
-      return Y+M+D+h+m+s
     }
   }
 }
