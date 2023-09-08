@@ -44,7 +44,7 @@
           <compass-outlined v-if="item.tab === '地图'" />
           <environment-outlined v-if="item.tab === '标注'" />
           <border-outlined v-if="item.tab === '图形'" />
-          <node-index-outlined v-if="item.tab === '路线'" />
+          <tool-outlined v-if="item.tab === '工具'" />
           {{ item.tab }}
         </span>
       </template>
@@ -54,10 +54,6 @@
           <map-config :model="models" :map="map" />
           <a-divider />
           <layer-config :model="models" />
-          <a-divider />
-          <measure-tool :map="map" :model="models" />
-          <a-divider />
-          <export-tool :map="map" :model="models" />
         </template>
         <template v-if="activeKey === '2'">
           <markers-config :model="models"/>
@@ -82,11 +78,9 @@
           <beziers-config :model="models" />
         </template>
         <template v-if="activeKey === '4'">
-          <a-button @click="draw('movingPath', true)">路径</a-button>
-          <a-button @click="cargo">出发</a-button>
-          <a-button @click="record">录屏</a-button>
-          <a-button @click="download">下载</a-button>
-          <a-button @click="showVideo">视频</a-button>
+          <measure-tool :map="map" :model="models" />
+          <a-divider />
+          <export-tool :map="map" :model="models" />
         </template>
       </div>
     </a-card>
@@ -345,17 +339,15 @@ import EllipsesConfig from "@/AirMap/Config/Graphical/EllipsesConfig"
 import RectanglesConfig from "@/AirMap/Config/Graphical/RectanglesConfig"
 import InfoWindowsConfig from "@/AirMap/Config/Makers/InfoWindowsConfig"
 import MeasureTool from "@/AirMap/Config/MeasureTool"
-import screenRecord from "@/utils/screenRecord"
 import {
   UpOutlined,
   DownOutlined,
   CompassOutlined,
   EnvironmentOutlined,
-  NodeIndexOutlined,
-  BorderOutlined
+  BorderOutlined,
+  ToolOutlined
 } from '@ant-design/icons-vue'
 import ExportTool from "@/AirMap/Config/ExportTool"
-import {time} from "@/utils/time"
 
 export default {
   name: 'AirMap',
@@ -377,8 +369,8 @@ export default {
     DownOutlined,
     CompassOutlined,
     EnvironmentOutlined,
-    NodeIndexOutlined,
     BorderOutlined,
+    ToolOutlined,
     MeasureTool
   },
   props: {
@@ -429,7 +421,7 @@ export default {
         { key: '1', tab: '地图' },
         { key: '2', tab: '标注' },
         { key: '3', tab: '图形' },
-        { key: '4', tab: '路线' },
+        { key: '4', tab: '工具' },
       ]
     }
   },
@@ -459,7 +451,6 @@ export default {
           }
         })
       })
-      this.screenRecord = new screenRecord()
     },
     click (e) {
       console.log(e)
@@ -542,21 +533,12 @@ export default {
       this.models.infoWindows[0].visible = false
     },
     draw (type, value) {
-      if (type === 'movingPath') {
-        type = 'polyline'
-        this.movingPathSetting = true
-      }
       this.mouseDrawType = type
       this.mouseDraw = value
     },
     drawed (data) {
       const type = this.mouseDrawType
       this.mouseDraw = false
-      if (this.movingPathSetting) {
-        this.movingPathSetting = false
-        this.setPath(data)
-        return
-      }
       if (type === 'polyline') this.$refs.polylinesConfig.add(data)
       if (type === 'polygon') this.$refs.polygonsConfig.add(data)
       if (type === 'rectangle') this.$refs.rectanglesConfig.add(data)
@@ -605,59 +587,6 @@ export default {
         this.$refs.toolbox.$el.style.left = `${document.body.clientWidth - 440}px`
         this.$refs.toolbox.$el.style.display = 'unset'
       }
-    },
-    setPath (data) {
-      var _this = this
-      this.lineArr = data
-      this.map.setCenter(_this.lineArr[0])
-      this.map.plugin('AMap.MoveAnimation', function () {
-        _this.cargoMarker = new AMap.Marker({
-          map: _this.map,
-          position: _this.lineArr[0],
-          icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
-          offset: new AMap.Pixel(-13, -26),
-        })
-
-        var polyline = new AMap.Polyline({
-          map: _this.map,
-          path: _this.lineArr,
-          showDir:true,
-          strokeColor: "#28F",  //线颜色
-          strokeWeight: 6,      //线宽
-        });
-
-        var passedPolyline = new AMap.Polyline({
-          map: _this.map,
-          strokeColor: "#AF5",  //线颜色
-          strokeWeight: 6,      //线宽
-        })
-
-        _this.cargoMarker.on('moving', function (e) {
-          passedPolyline.setPath(e.passedPath);
-          _this.map.setCenter(e.target.getPosition(),true)
-        });
-        _this.map.setFitView()
-      })
-    },
-    cargo () {
-      this.cargoMarker.moveAlong(this.lineArr, {
-        // 每一段的时长
-        duration: 500,//可根据实际采集时间间隔设置
-        // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
-        autoRotation: true
-      });
-      this.foldToolbox = true
-    },
-    record () {
-      this.screenRecord.start()
-    },
-    download () {
-      this.screenRecord.saveToFile(time.timeStringFilename())
-    },
-    showVideo () {
-      this.videoSrc = this.screenRecord.getUrl()
-      console.log('this.screenRecord.getUrl()', this.screenRecord.getUrl())
-      this.videoModal = true
     }
   }
 }

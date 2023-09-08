@@ -47,22 +47,147 @@
       </a-col>
     </a-row>
     <!--测距样式modal-->
-    <a-modal v-model:visible="ruleStyleModal" title="测距样式设定" @cancel="styleChangeCancel('rule')">
+    <a-modal v-model:visible="ruleStyleModal" title="测距样式设定" @cancel="styleChangeHandle('rule')" @ok="styleChangeHandle('rule')">
       <a-row class="margin-top">
         <a-col :span="labelSpan">样式</a-col>
         <a-col :span="wrapperSpan">
           <a-radio-group v-model:value="ruleStyle" :options="ruleStyleOptions" />
         </a-col>
       </a-row>
+      <template v-if="ruleStyle === 2">
+        <br/>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">起点图标</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input v-model:value="ruleCustomStyle.start.icon.image"></a-input>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图标尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.start.icon.size[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.start.icon.size[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图片尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.start.icon.imageSize[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.start.icon.imageSize[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">偏移尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.start.offset[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.start.offset[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <br/>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">途经点图标</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input v-model:value="ruleCustomStyle.mid.icon.image"></a-input>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图标尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.mid.icon.size[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.mid.icon.size[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图片尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.mid.icon.imageSize[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.mid.icon.imageSize[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">偏移尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.mid.offset[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.mid.offset[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <br/>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">终点图标</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input v-model:value="ruleCustomStyle.end.icon.image"></a-input>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图标尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.end.icon.size[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.end.icon.size[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">图片尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.end.icon.imageSize[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.end.icon.imageSize[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">偏移尺寸</a-col>
+          <a-col :span="wrapperSpan">
+            <a-input-group compact>
+              <a-input v-model:value="ruleCustomStyle.end.offset[0]" style="width: 50%" />
+              <a-input v-model:value="ruleCustomStyle.end.offset[1]" style="width: 50%" />
+            </a-input-group>
+          </a-col>
+        </a-row>
+      </template>
     </a-modal>
     <!--面积测算样式modal-->
-    <a-modal v-model:visible="areaStyleModal" title="面积测算样式设定" @cancel="styleChangeCancel('measureArea')">
+    <a-modal v-model:visible="areaStyleModal" title="面积测算样式设定" @cancel="styleChangeHandle('measureArea')">
       <a-row class="margin-top">
         <a-col :span="labelSpan">样式</a-col>
         <a-col :span="wrapperSpan">
           <a-radio-group v-model:value="areaStyle" :options="areaStyleOptions" />
         </a-col>
       </a-row>
+      <template v-if="areaStyle === 2">
+        <br>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">边线颜色</a-col>
+          <a-col :span="wrapperSpan">
+            <color-selector v-model:value="areaCustomStyle.strokeColor" size="small"></color-selector>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">填充颜色</a-col>
+          <a-col :span="wrapperSpan">
+            <color-selector v-model:value="areaCustomStyle.fillColor" size="small"></color-selector>
+          </a-col>
+        </a-row>
+        <a-row class="margin-top">
+          <a-col :span="labelSpan">填充透明度</a-col>
+          <a-col :span="wrapperSpan">
+            <a-slider v-model:value="areaCustomStyle.fillOpacity" :min="0" :max="1" :step="0.01"/>
+          </a-col>
+        </a-row>
+      </template>
     </a-modal>
   </div>
 </template>
@@ -76,10 +201,12 @@ import {
   HighlightOutlined,
   BgColorsOutlined
 } from "@ant-design/icons-vue"
+import ColorSelector from "@/components/V3ColorPicker/V3ColorPicker.vue";
 
 export default {
   name: "MeasureTool",
   components: {
+    ColorSelector,
     ExpandAltOutlined,
     GatewayOutlined,
     StopOutlined,
@@ -97,10 +224,14 @@ export default {
       required: true
     }
   },
+  mounted() {
+    this.ruleCustomStyle = this.ruleMarkerStyle
+    this.areaCustomStyle = this.areaDemoStyle
+  },
   data() {
     return {
-      labelSpan: 6,
-      wrapperSpan: 18,
+      labelSpan: 4,
+      wrapperSpan: 20,
       mouseTool: null,
       type: '',
       ruleStyleModal: false,
@@ -250,7 +381,9 @@ export default {
       this.model.map.render = false
       setTimeout(() => { this.model.map.render = true }, 200) // 200毫秒后重新渲染地图实例
     },
-    styleChangeCancel (type) {
+    styleChangeHandle (type) {
+      this.ruleStyleModal = false
+      this.areaStyleModal = false
       this.measureEnd()
       this.measure(type)
     }
@@ -259,4 +392,7 @@ export default {
 </script>
 
 <style scoped>
+.margin-top {
+  margin-top: 5px;
+}
 </style>
